@@ -23,7 +23,7 @@ WORKDIR /app
 
 # Copy the binary from builder
 COPY --from=builder /app/server .
-COPY --from=builder /app/config.json .
+COPY --from=builder /app/config/config.json .
 
 # Set environment variables
 ENV GIN_MODE=release
