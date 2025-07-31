@@ -63,7 +63,7 @@ func loadConfig() *config.Config {
 	log.Println("Carregando configuração...")
 
 	// Primeiro tenta na raiz
-	configFilePath := "./config.json"
+	configFilePath := "./app/config.json"
 
 	// Se não encontrar, tenta no diretório config
 	if _, err := os.Stat(configFilePath); err != nil {
