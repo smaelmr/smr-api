@@ -46,7 +46,7 @@ func main() {
 
 	// Configurar o CORS
 	c := cors.New(cors.Options{
-		AllowedOrigins:   []string{"http://localhost:3000"}, // Origem permitida
+		AllowedOrigins:   []string{"http://localhost:3000", "https://smr-api.onrender.com"}, // Origem permitida
 		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 		AllowedHeaders:   []string{"Authorization", "Content-Type"},
 		AllowCredentials: true,

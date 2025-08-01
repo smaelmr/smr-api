@@ -1,10 +1,10 @@
 {
     "Database": {
-        "User": "",
-        "Pass":"",
-        "Host":"",
-        "Port": 0,
-        "Name":""
+        "User": "root",
+        "Pass":"admin",
+        "Host":"127.0.0.1",
+        "Port": 3306,
+        "Name":"smr-db"
     }
 
 }
