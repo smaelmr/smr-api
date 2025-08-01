@@ -23,7 +23,17 @@ WORKDIR /app
 
 # Copy the binary from builder
 COPY --from=builder /app/server .
-COPY --from=builder /app/config/config.json .
+
+# Create config.json with environment variables
+RUN echo '{ \
+    "Database": { \
+        "User": "'${DATABASE_USER}'", \
+        "Pass": "'${DATABASE_PASS}'", \
+        "Host": "'${DATABASE_HOST}'", \
+        "Port": '${DATABASE_PORT}', \
+        "Name": "'${DATABASE_NAME}'" \
+    } \
+}' > config.json
 
 # Set environment variables
 ENV GIN_MODE=release
