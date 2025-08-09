@@ -7,6 +7,10 @@ import (
 	"github.com/smaelmr/finance-api/internal/auth"
 )
 
+type LoginController struct {
+	AuthService *auth.JWTAuthService
+}
+
 type Credentials struct {
 	Username string `json:"username"`
 	Password string `json:"password"`
@@ -16,7 +20,13 @@ type TokenResponse struct {
 	Token string `json:"token"`
 }
 
-func Login(w http.ResponseWriter, r *http.Request) {
+func NewLoginController(auth *auth.JWTAuthService) *LoginController {
+	return &LoginController{
+		AuthService: auth,
+	}
+}
+
+func (c *LoginController) Login(w http.ResponseWriter, r *http.Request) {
 	var creds Credentials
 	err := json.NewDecoder(r.Body).Decode(&creds)
 	if err != nil {
@@ -30,7 +40,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	tokenString, err := auth.GenerateJWT(creds.Username)
+	tokenString, err := c.AuthService.GenerateToken(1, creds.Username)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		return

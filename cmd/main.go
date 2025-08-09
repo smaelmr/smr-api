@@ -9,15 +9,19 @@ import (
 	"github.com/rs/cors"
 	"github.com/smaelmr/finance-api/api/controllers"
 	"github.com/smaelmr/finance-api/config"
+	"github.com/smaelmr/finance-api/internal/auth"
 	"github.com/smaelmr/finance-api/internal/infrastructure/database"
 	"github.com/smaelmr/finance-api/internal/infrastructure/database/repository"
 	"github.com/smaelmr/finance-api/internal/services"
 )
 
 func main() {
-
 	conf := loadConfig()
 	database := setupDatabase(conf)
+
+	// Inicializar o serviço de autenticação
+	jwtService := auth.NewJWTAuthService(conf.Auth.SecretKey)
+	auth.InitAuthMiddleware(jwtService)
 
 	repo := repository.NewRepo(database.DB)
 
@@ -26,6 +30,7 @@ func main() {
 	cityService := services.NewCityService(repo)
 	freightService := services.NewFreightService(repo)
 
+	loginController := controllers.NewLoginController(jwtService)
 	dieselController := controllers.NewDieselController(dieselService)
 	personController := controllers.NewPersonController(personService)
 	cityController := controllers.NewCityController(cityService)
@@ -33,16 +38,17 @@ func main() {
 
 	// Definir os endpoints
 	mux := http.NewServeMux()
-	mux.HandleFunc("/api/v1/login", controllers.Login)
-	//mux.HandleFunc("/api/v1/finance", controllers.HandleFinance)
-	mux.HandleFunc("/api/v1/customer", personController.HandleCustomer)
-	mux.HandleFunc("/api/v1/supplier", personController.HandleSupplier)
 
-	mux.HandleFunc("/api/v1/freight", freightController.HandleFreight)
+	// Rota pública
+	mux.HandleFunc("/api/v1/login", loginController.Login)
 
-	mux.HandleFunc("/api/v1/diesel", dieselController.HandleDiesel)
-	mux.HandleFunc("/api/v1/driver", personController.HandleDriver)
-	mux.HandleFunc("/api/v1/city", cityController.HandleCity)
+	// Rotas protegidas
+	mux.HandleFunc("/api/v1/customer", auth.AuthMiddleware(personController.HandleCustomer))
+	mux.HandleFunc("/api/v1/supplier", auth.AuthMiddleware(personController.HandleSupplier))
+	mux.HandleFunc("/api/v1/freight", auth.AuthMiddleware(freightController.HandleFreight))
+	mux.HandleFunc("/api/v1/diesel", auth.AuthMiddleware(dieselController.HandleDiesel))
+	mux.HandleFunc("/api/v1/driver", auth.AuthMiddleware(personController.HandleDriver))
+	mux.HandleFunc("/api/v1/city", auth.AuthMiddleware(cityController.HandleCity))
 
 	// Configurar o CORS
 	c := cors.New(cors.Options{

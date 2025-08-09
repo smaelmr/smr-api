@@ -25,6 +25,7 @@ func LoadConfig(filepath, filename, extension string) (*Config, error) {
 	viper.BindEnv("Database.Host", "DATABASE_HOST")
 	viper.BindEnv("Database.Port", "DATABASE_PORT")
 	viper.BindEnv("Database.Name", "DATABASE_NAME")
+	viper.BindEnv("Auth.SecretKey", "AUTH_SECRETKEY")
 
 	// Tentar carregar o arquivo de configuração
 	viper.AddConfigPath(filepath)
@@ -69,6 +70,10 @@ func validateConfig(config *Config) error {
 	}
 	if os.Getenv("DATABASE_NAME") != "" {
 		config.Database.Name = os.Getenv("DATABASE_NAME")
+	}
+
+	if os.Getenv("AUTH_SECRETKEY") != "" {
+		config.Auth.SecretKey = os.Getenv("AUTH_SECRETKEY")
 	}
 
 	// Log das configurações (sem senhas)
