@@ -7,17 +7,20 @@ import (
 )
 
 type Repo struct {
-	conn *sql.DB
+	conn        *sql.DB
+	vehicleRepo repository.VehicleRepository
 }
 
 func NewRepo(conn *sql.DB) *Repo {
-	return &Repo{
+	repo := &Repo{
 		conn: conn,
 	}
+	repo.vehicleRepo = NewVehicleRepository(conn)
+	return repo
 }
 
-func (c *Repo) Diesel() repository.DieselRepository {
-	return newDieselRepository(c.conn)
+func (c *Repo) Fueling() repository.FuelingRepository {
+	return newFuelingRepository(c.conn)
 }
 
 func (c *Repo) Person() repository.PersonRepository {
@@ -28,6 +31,14 @@ func (c *Repo) City() repository.CityRepository {
 	return newCityRepository(c.conn)
 }
 
-func (c *Repo) Freight() repository.FreightRepository {
-	return newFreightRepository(c.conn)
+func (c *Repo) Vehicle() repository.VehicleRepository {
+	return c.vehicleRepo
+}
+
+func (c *Repo) Trip() repository.TripRepository {
+	return newTripRepository(c.conn)
+}
+
+func (c *Repo) Finance() repository.FinanceRepository {
+	return newFinanceRepository(c.conn)
 }

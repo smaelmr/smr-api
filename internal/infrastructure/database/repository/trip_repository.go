@@ -7,17 +7,17 @@ import (
 	"github.com/smaelmr/finance-api/internal/domain/entities/filter"
 )
 
-type FreightRepository struct {
+type TripRepository struct {
 	conn *sql.DB
 }
 
-func newFreightRepository(conn *sql.DB) *FreightRepository {
-	return &FreightRepository{
+func newTripRepository(conn *sql.DB) *TripRepository {
+	return &TripRepository{
 		conn: conn,
 	}
 }
 
-func (r *FreightRepository) Add(freight entities.Freight) error {
+func (r *TripRepository) Add(trip entities.Trip) error {
 	query :=
 		`INSERT INTO frete 
 			(carreta_placa, cavalo_placa, cliente_id, origem_id, 
@@ -27,24 +27,24 @@ func (r *FreightRepository) Add(freight entities.Freight) error {
 		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
 
 	_, err := r.conn.Exec(query,
-		freight.CarretaPlaca,
-		freight.CavaloPlaca,
-		freight.ClienteId,
-		freight.OrigemId,
-		freight.DestinoFinalId,
-		freight.FormaPagamentoId,
-		freight.MotoristaId,
-		freight.DataCarregamento,
-		freight.DataEntrega,
-		freight.NumeroDocumento,
-		freight.ValorAgenciamento,
-		freight.ValorFrete,
-		freight.ValorPedagio,
-		freight.Observacoes)
+		trip.CarretaPlaca,
+		trip.CavaloPlaca,
+		trip.ClienteId,
+		trip.OrigemId,
+		trip.DestinoFinalId,
+		trip.FormaPagamentoId,
+		trip.MotoristaId,
+		trip.DataCarregamento,
+		trip.DataEntrega,
+		trip.NumeroDocumento,
+		trip.ValorAgenciamento,
+		trip.ValorFrete,
+		trip.ValorPedagio,
+		trip.Observacoes)
 	return err
 }
 
-func (r *FreightRepository) GetFreightRecord() (*entities.Freight, error) {
+func (r *TripRepository) GetTripRecord() (*entities.Trip, error) {
 	query :=
 		`SELECT id, carreta_placa, cavalo_placa, cliente_id, origem_id,
 			 destino_final_id, forma_pagamento_id, motorista_id,
@@ -54,7 +54,7 @@ func (r *FreightRepository) GetFreightRecord() (*entities.Freight, error) {
 
 	row := r.conn.QueryRow(query)
 
-	var record entities.Freight
+	var record entities.Trip
 	err := row.Scan(
 		&record.Id,
 		&record.CarretaPlaca,
@@ -78,7 +78,7 @@ func (r *FreightRepository) GetFreightRecord() (*entities.Freight, error) {
 	return &record, nil
 }
 
-func (r *FreightRepository) GetAll() ([]entities.Freight, error) {
+func (r *TripRepository) GetAll() ([]entities.Trip, error) {
 	query := `SELECT 
 				f.id, f.carreta_placa, f.cavalo_placa, f.cliente_id, pc.nome AS cliente_nome,
 				f.origem_id, o.nome AS origem_nome, f.destino_final_id, d.nome AS destino_final_nome, 
@@ -100,9 +100,9 @@ func (r *FreightRepository) GetAll() ([]entities.Freight, error) {
 	}
 	defer rows.Close()
 
-	var records []entities.Freight
+	var records []entities.Trip
 	for rows.Next() {
-		var record entities.Freight
+		var record entities.Trip
 		if err := rows.Scan(
 			&record.Id,
 			&record.CarretaPlaca,
@@ -132,7 +132,7 @@ func (r *FreightRepository) GetAll() ([]entities.Freight, error) {
 	return records, nil
 }
 
-func (r *FreightRepository) Update(freight entities.Freight) error {
+func (r *TripRepository) Update(trip entities.Trip) error {
 	query := `UPDATE frete SET 
 		carreta_placa = ?, 
 		cavalo_placa = ?, 
@@ -151,26 +151,26 @@ func (r *FreightRepository) Update(freight entities.Freight) error {
 		WHERE id = ?`
 
 	_, err := r.conn.Exec(query,
-		freight.CarretaPlaca,
-		freight.CavaloPlaca,
-		freight.ClienteId,
-		freight.OrigemId,
-		freight.DestinoFinalId,
-		freight.FormaPagamentoId,
-		freight.MotoristaId,
-		freight.DataCarregamento,
-		freight.DataEntrega,
-		freight.NumeroDocumento,
-		freight.ValorAgenciamento,
-		freight.ValorFrete,
-		freight.ValorPedagio,
-		freight.Observacoes,
-		freight.Id)
+		trip.CarretaPlaca,
+		trip.CavaloPlaca,
+		trip.ClienteId,
+		trip.OrigemId,
+		trip.DestinoFinalId,
+		trip.FormaPagamentoId,
+		trip.MotoristaId,
+		trip.DataCarregamento,
+		trip.DataEntrega,
+		trip.NumeroDocumento,
+		trip.ValorAgenciamento,
+		trip.ValorFrete,
+		trip.ValorPedagio,
+		trip.Observacoes,
+		trip.Id)
 
 	return err
 }
 
-func (r *FreightRepository) Filter(params filter.FreightFilter) ([]entities.Freight, error) {
+func (r *TripRepository) Filter(params filter.TripFilter) ([]entities.Trip, error) {
 	query := `SELECT 
 		f.id, f.carreta_placa, f.cavalo_placa, f.cliente_id, pc.nome AS cliente_nome,
 		f.origem_id, o.nome AS origem_nome, f.destino_final_id, d.nome AS destino_final_nome, 
@@ -220,9 +220,9 @@ func (r *FreightRepository) Filter(params filter.FreightFilter) ([]entities.Frei
 	}
 	defer rows.Close()
 
-	var records []entities.Freight
+	var records []entities.Trip
 	for rows.Next() {
-		var record entities.Freight
+		var record entities.Trip
 		if err := rows.Scan(
 			&record.Id,
 			&record.CarretaPlaca,

@@ -2,7 +2,7 @@ package filter
 
 import "time"
 
-type FreightFilterParams struct {
+type TripFilterParams struct {
 	ClienteId      *string `json:"clienteId,omitempty"`
 	MotoristaId    *string `json:"motoristaId,omitempty"`
 	DataInicial    *string `json:"dataInicial,omitempty"`
@@ -13,8 +13,8 @@ type FreightFilterParams struct {
 	DestinoFinalId *string `json:"destinoFinalId,omitempty"`
 }
 
-func (p *FreightFilterParams) ToFilter() (*FreightFilter, error) {
-	filter := &FreightFilter{}
+func (p *TripFilterParams) ToFilter() (*TripFilter, error) {
+	filter := &TripFilter{}
 
 	if p.ClienteId != nil && *p.ClienteId != "" {
 		id, err := ParseStringToInt64(*p.ClienteId)
@@ -88,8 +88,8 @@ func (p *FreightFilterParams) ToFilter() (*FreightFilter, error) {
 	return filter, nil
 }
 
-func NewFreightFilterParams(clienteId, motoristaId, dataInicial, dataFinal, cavaloPlaca *string) *FreightFilterParams {
-	return &FreightFilterParams{
+func NewTripFilterParams(clienteId, motoristaId, dataInicial, dataFinal, cavaloPlaca *string) *TripFilterParams {
+	return &TripFilterParams{
 		ClienteId:   clienteId,
 		MotoristaId: motoristaId,
 		DataInicial: dataInicial,

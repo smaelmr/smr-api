@@ -36,7 +36,7 @@ func (c *CityController) HandleCity(w http.ResponseWriter, r *http.Request) {
 
 		w.WriteHeader(http.StatusCreated)
 	case "GET":
-		// Get a freight record by ID
+		// Get a trip record by ID
 		//id, err := strconv.Atoi(r.URL.Query().Get("id"))
 		//if err != nil {
 		//	w.WriteHeader(http.StatusBadRequest)

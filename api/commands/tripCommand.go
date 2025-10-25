@@ -1,6 +1,6 @@
 package commands
 
-type FreightAdd struct {
+type TripAdd struct {
 	CarretaPlaca      string `json:"carretaPlaca"`
 	CavaloPlaca       string `json:"cavaloPlaca"`
 	ClienteId         string `json:"clienteId"`
@@ -17,7 +17,7 @@ type FreightAdd struct {
 	Observacoes       string `json:"observacoes"`
 }
 
-type FreightUpdate struct {
+type TripUpdate struct {
 	Id                string `json:"id"`
 	CarretaPlaca      string `json:"carretaPlaca"`
 	CavaloPlaca       string `json:"cavaloPlaca"`

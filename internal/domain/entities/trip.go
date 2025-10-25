@@ -2,7 +2,7 @@ package entities
 
 import "time"
 
-type Freight struct {
+type Trip struct {
 	Id                      int64     `json:"id"`
 	CarretaPlaca            string    `json:"carretaPlaca"`
 	CavaloPlaca             string    `json:"cavaloPlaca"`

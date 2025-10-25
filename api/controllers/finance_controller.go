@@ -1,13 +1,11 @@
 package controllers
 
-/*import (
+import (
 	"encoding/json"
 
 	"net/http"
-	"strconv"
 
-	"github.com/smaelmr/finance-api/internal/entities"
-	"github.com/smaelmr/finance-api/internal/infrastructure/database/repository"
+	"github.com/smaelmr/finance-api/internal/domain/entities"
 	"github.com/smaelmr/finance-api/internal/services"
 )
 
@@ -21,7 +19,7 @@ func NewFinanceController(financeService *services.FinanceService) *FinanceContr
 	}
 }
 
-func HandleFinance(w http.ResponseWriter, r *http.Request) {
+func (c *FinanceController) HandleFinance(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case "POST":
 		// Create a new finance record
@@ -32,7 +30,7 @@ func HandleFinance(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		err = repository.CreateFinanceRecord(record)
+		err = c.financeService.Add(record)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			return
@@ -40,13 +38,13 @@ func HandleFinance(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusCreated)
 	case "GET":
 		// Get a finance record by ID
-		id, err := strconv.Atoi(r.URL.Query().Get("id"))
-		if err != nil {
-			w.WriteHeader(http.StatusBadRequest)
-			return
-		}
+		//id, err := strconv.Atoi(r.URL.Query().Get("id"))
+		//if err != nil {
+		//	w.WriteHeader(http.StatusBadRequest)
+		//	return
+		//}
 
-		record, err := repository.GetFinanceRecord(id)
+		record, err := c.financeService.GetAll()
 		if err != nil {
 			w.WriteHeader(http.StatusNotFound)
 			return
@@ -55,4 +53,4 @@ func HandleFinance(w http.ResponseWriter, r *http.Request) {
 		json.NewEncoder(w).Encode(record)
 		// Para DELETE e UPDATE, você pode adicionar os casos aqui.
 	}
-}*/
+}

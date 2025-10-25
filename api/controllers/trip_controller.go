@@ -8,27 +8,27 @@ import (
 	"github.com/smaelmr/finance-api/internal/services"
 )
 
-type FreightController struct {
-	freightService *services.FreightService
+type TripController struct {
+	tripService *services.TripService
 }
 
-func NewFreightController(freightService *services.FreightService) *FreightController {
-	return &FreightController{
-		freightService: freightService,
+func NewTripController(tripService *services.TripService) *TripController {
+	return &TripController{
+		tripService: tripService,
 	}
 }
 
-func (c *FreightController) HandleFreight(w http.ResponseWriter, r *http.Request) {
+func (c *TripController) HandleTrip(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case "POST":
-		var freight entities.Freight
-		err := json.NewDecoder(r.Body).Decode(&freight)
+		var trip entities.Trip
+		err := json.NewDecoder(r.Body).Decode(&trip)
 		if err != nil {
 			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
 
-		err = c.freightService.Add(&freight)
+		err = c.tripService.Add(&trip)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			return
@@ -36,14 +36,14 @@ func (c *FreightController) HandleFreight(w http.ResponseWriter, r *http.Request
 
 		w.WriteHeader(http.StatusCreated)
 	case "PUT":
-		var freight entities.Freight
-		err := json.NewDecoder(r.Body).Decode(&freight)
+		var trip entities.Trip
+		err := json.NewDecoder(r.Body).Decode(&trip)
 		if err != nil {
 			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
 
-		err = c.freightService.Update(&freight)
+		err = c.tripService.Update(&trip)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			return
@@ -51,7 +51,7 @@ func (c *FreightController) HandleFreight(w http.ResponseWriter, r *http.Request
 
 		w.WriteHeader(http.StatusOK)
 	case "GET":
-		clienteId := r.URL.Query().Get("customerId")
+		/*clienteId := r.URL.Query().Get("customerId")
 		motoristaId := r.URL.Query().Get("driverId")
 		dataInicial := r.URL.Query().Get("startDate")
 		dataFinal := r.URL.Query().Get("endDate")
@@ -76,8 +76,14 @@ func (c *FreightController) HandleFreight(w http.ResponseWriter, r *http.Request
 			placaCavaloPtr = &placaCavalo
 		}
 
-		records, err := c.freightService.Filter(clienteIdPtr, motoristaIdPtr,
+		records, err := c.tripService.Filter(clienteIdPtr, motoristaIdPtr,
 			dataInicialPtr, dataFinalPtr, placaCavaloPtr)
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}*/
+
+		records, err := c.tripService.GetAll()
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			return

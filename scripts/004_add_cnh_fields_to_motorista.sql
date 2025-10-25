@@ -1,0 +1,3 @@
+ALTER TABLE motorista
+ADD COLUMN cnh_category VARCHAR(5) NOT NULL,
+ADD COLUMN cnh_validity DATETIME NOT NULL;

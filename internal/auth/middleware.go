@@ -11,8 +11,8 @@ func InitAuthMiddleware(service AuthService) {
 	authService = service
 }
 
-func AuthMiddleware(next http.HandlerFunc) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
+func AuthMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// Pular verificação para OPTIONS (necessário para CORS)
 		if r.Method == "OPTIONS" {
 			next.ServeHTTP(w, r)
@@ -49,5 +49,5 @@ func AuthMiddleware(next http.HandlerFunc) http.HandlerFunc {
 
 		// Token válido, continuar com a requisição
 		next.ServeHTTP(w, r)
-	}
+	})
 }

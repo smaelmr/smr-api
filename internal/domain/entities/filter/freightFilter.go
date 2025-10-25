@@ -2,7 +2,7 @@ package filter
 
 import "time"
 
-type FreightFilter struct {
+type TripFilter struct {
 	ClienteId      *int64     `json:"clienteId,omitempty"`
 	MotoristaId    *int64     `json:"motoristaId,omitempty"`
 	DataInicial    *time.Time `json:"dataInicial,omitempty"`

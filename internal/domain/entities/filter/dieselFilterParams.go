@@ -4,15 +4,15 @@ import (
 	"time"
 )
 
-type DieselFilterParams struct {
+type FuelingFilterParams struct {
 	FornecedorId *string `json:"fornecedorId,omitempty"`
 	Placa        *string `json:"placa,omitempty"`
 	DataInicial  *string `json:"dataInicial,omitempty"`
 	DataFinal    *string `json:"dataFinal,omitempty"`
 }
 
-func (p *DieselFilterParams) ToFilter() (*DieselFilter, error) {
-	filter := &DieselFilter{}
+func (p *FuelingFilterParams) ToFilter() (*FuelingFilter, error) {
+	filter := &FuelingFilter{}
 
 	if p.FornecedorId != nil && *p.FornecedorId != "" {
 		id, err := ParseStringToInt64(*p.FornecedorId)
@@ -52,8 +52,8 @@ func (p *DieselFilterParams) ToFilter() (*DieselFilter, error) {
 	return filter, nil
 }
 
-func NewDieselFilterParams(fornecedorId, placa, dataInicial, dataFinal *string) *DieselFilterParams {
-	return &DieselFilterParams{
+func NewFuelingFilterParams(fornecedorId, placa, dataInicial, dataFinal *string) *FuelingFilterParams {
+	return &FuelingFilterParams{
 		FornecedorId: fornecedorId,
 		Placa:        placa,
 		DataInicial:  dataInicial,

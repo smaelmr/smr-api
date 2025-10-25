@@ -1,21 +1,20 @@
 package entities
 
+import "time"
+
 type Finance struct {
-	Id             int    `json:"id"`
-	DueDate        string `json:"dueDate"`
-	LaunchDate     string `json:"launchDate"`
-	Amount         string `json:"amount"`
-	Description    string `json:"description"`
-	AccountId      string `json:"accountId"`
-	PaymentMethod  string `json:"paymentMethod"`
-	DocumentNumber string `json:"documentNumber"`
-	Notes          string `json:"notes"`
-	CategoryId     int    `json:"categotyId"`
-	CostCenterId   int    `json:"costCenterId"`
-	TagsId         int    `json:"tagsId"`
-	Installments   int    `json:"instalments"`
-	Repetetion     string `json:"repetetion"`
-	SupplierId     int    `json:"supplierId"`
+	Id              int64     `json:"id"`
+	PessoaId        int64     `json:"pessoaId"`
+	Valor           float64   `json:"valor"`
+	NumeroDocumento string    `json:"numeroDocumento"`
+	DataLancamento  time.Time `json:"dataLancamento"`
+	DataVencimento  time.Time `json:"dataVencimento"`
+	DataRealizacao  time.Time `json:"dataRealizacao"`
+	Origem          string    `json:"origem"`
+	Observacao      string    `json:"observacao"`
+	Recebido        bool      `json:"recebido"`
+	CreatedAt       time.Time `json:"createdAt"`
+	UpdatedAt       time.Time `json:"updatedAt"`
 }
 
 /*type Reader interface {
