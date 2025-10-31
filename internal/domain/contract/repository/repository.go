@@ -1,7 +1,10 @@
 package repository
 
 import (
+	"time"
+
 	"github.com/smaelmr/finance-api/internal/domain/entities"
+	"github.com/smaelmr/finance-api/internal/domain/entities/dto"
 	"github.com/smaelmr/finance-api/internal/domain/entities/filter"
 )
 
@@ -19,7 +22,8 @@ type FuelingRepository interface {
 	GetAll() ([]entities.Fueling, error)
 	Update(diesel entities.Fueling) error
 	Delete(id int64) error
-	//Filter(params filter.FuelingFilter) ([]entities.Fueling, error)
+	GetByDateRange(startDate, endDate time.Time) ([]entities.Fueling, error)
+	GetFuelConsumption(startDate, endDate time.Time) ([]dto.FuelingConsumption, error)
 }
 
 type CityRepository interface {
@@ -33,12 +37,12 @@ type PersonRepository interface {
 	AddDriver(driver entities.Driver) error
 	AddGasStation(person entities.Person) error
 	GetSuppliers() ([]entities.Person, error)
-	GetSupplierByCnpj(string) (entities.Person, error)
 	GetClients() ([]entities.Person, error)
 	GetDrivers() ([]entities.Driver, error)
 	GetGasStations() ([]entities.Person, error)
 	UpdateGasStation(person entities.Person) error
 	DeleteGasStation(id int64) error
+	GetGasStationByCnpj(string) (entities.Person, error)
 	UpdateClient(person entities.Person) error
 	DeleteClient(id int64) error
 	UpdateSupplier(person entities.Person) error
@@ -51,6 +55,7 @@ type TripRepository interface {
 	Add(trip entities.Trip) error
 	GetAll() ([]entities.Trip, error)
 	Update(trip entities.Trip) error
+	GetByDateRange(startDate, endDate time.Time) ([]entities.Trip, error)
 	Filter(params filter.TripFilter) ([]entities.Trip, error)
 }
 

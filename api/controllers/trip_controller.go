@@ -3,6 +3,7 @@ package controllers
 import (
 	"encoding/json"
 	"net/http"
+	"strconv"
 
 	"github.com/smaelmr/finance-api/internal/domain/entities"
 	"github.com/smaelmr/finance-api/internal/services"
@@ -51,41 +52,37 @@ func (c *TripController) HandleTrip(w http.ResponseWriter, r *http.Request) {
 
 		w.WriteHeader(http.StatusOK)
 	case "GET":
-		/*clienteId := r.URL.Query().Get("customerId")
-		motoristaId := r.URL.Query().Get("driverId")
-		dataInicial := r.URL.Query().Get("startDate")
-		dataFinal := r.URL.Query().Get("endDate")
-		placaCavalo := r.URL.Query().Get("truckPlate")
+		monthStr := r.URL.Query().Get("month")
+		yearStr := r.URL.Query().Get("year")
 
-		var clienteIdPtr, motoristaIdPtr, dataInicialPtr, dataFinalPtr,
-			placaCavaloPtr *string
+		var records []entities.Trip
+		var err error
 
-		if clienteId != "" {
-			clienteIdPtr = &clienteId
-		}
-		if motoristaId != "" {
-			motoristaIdPtr = &motoristaId
-		}
-		if dataInicial != "" {
-			dataInicialPtr = &dataInicial
-		}
-		if dataFinal != "" {
-			dataFinalPtr = &dataFinal
-		}
-		if placaCavalo != "" {
-			placaCavaloPtr = &placaCavalo
+		if monthStr != "" && yearStr != "" {
+			month, err := strconv.Atoi(monthStr)
+			if err != nil {
+				http.Error(w, "Mês inválido", http.StatusBadRequest)
+				return
+			}
+
+			year, err := strconv.Atoi(yearStr)
+			if err != nil {
+				http.Error(w, "Ano inválido", http.StatusBadRequest)
+				return
+			}
+
+			if month < 1 || month > 12 {
+				http.Error(w, "Mês deve estar entre 1 e 12", http.StatusBadRequest)
+				return
+			}
+
+			records, err = c.tripService.GetByMonthYear(month, year)
+		} else {
+			records, err = c.tripService.GetAll()
 		}
 
-		records, err := c.tripService.Filter(clienteIdPtr, motoristaIdPtr,
-			dataInicialPtr, dataFinalPtr, placaCavaloPtr)
 		if err != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-			return
-		}*/
-
-		records, err := c.tripService.GetAll()
-		if err != nil {
-			w.WriteHeader(http.StatusInternalServerError)
+			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
 

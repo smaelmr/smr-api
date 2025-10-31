@@ -16,6 +16,7 @@ func NewFuelingRoutes(dieselService *services.FuelingService, personService *ser
 	router.Delete("/{id}", controller.HandleFueling)
 
 	router.Post("/import-russi", controller.HandleImportLinxDelPozo)
+	router.Get("/consumo", controller.HandleGetConsumption)
 
 	return router
 }

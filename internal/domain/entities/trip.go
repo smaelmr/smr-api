@@ -9,9 +9,9 @@ type Trip struct {
 	ClienteId               int64     `json:"clienteId"`
 	ClienteNome             string    `json:"clienteNome,omitempty"`
 	OrigemId                int64     `json:"origemId"`
-	OrigemNome              string    `json:"origemNome,omitempty"`
+	OrigemNome              string    `json:"origem,omitempty"`
 	DestinoFinalId          int64     `json:"destinoFinalId"`
-	DestinoFinalNome        string    `json:"destinoFinalNome,omitempty"`
+	DestinoFinalNome        string    `json:"destino,omitempty"`
 	FormaPagamentoId        int64     `json:"formaPagamentoId"`
 	FormaPagamentoDescricao string    `json:"formaPagamentoDescricao,omitempty"`
 	MotoristaId             int64     `json:"motoristaId"`

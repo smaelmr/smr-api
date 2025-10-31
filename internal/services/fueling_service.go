@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"mime/multipart"
 	"net/http"
-	"strconv"
 	"strings"
 	"time"
 
@@ -32,7 +31,7 @@ func NewFuelingService(
 	}
 }
 
-func (c *FuelingService) ImportLinxDelPozo(file multipart.File, w http.ResponseWriter) ([]dto.FuelingImport, []string, bool) {
+func (c *FuelingService) ImportLinxDelPozo(file multipart.File, handler *multipart.FileHeader, w http.ResponseWriter) ([]dto.FuelingImport, []string, bool) {
 	xlsx, err := excelize.OpenReader(file)
 	if err != nil {
 		http.Error(w, "Erro ao ler arquivo Excel: "+err.Error(), http.StatusBadRequest)
@@ -99,22 +98,26 @@ func (c *FuelingService) ImportLinxDelPozo(file multipart.File, w http.ResponseW
 
 	// Processar os registros válidos
 	for _, record := range importedRecords {
-		fueling, err := c.convertToFueling(record)
+
+		fueling, err := c.convertToFueling(record, handler.Filename)
 		if err != nil {
 			errors = append(errors, fmt.Sprintf("Erro ao processar registro: %s", err.Error()))
 			continue
 		}
 
-		err = c.Add(&fueling)
-		if err != nil {
-			errors = append(errors, fmt.Sprintf("Erro ao salvar registro: %s", err.Error()))
-			continue
+		if (fueling.TipoCombustivel == "Diesel_S10" || fueling.TipoCombustivel == "Diesel_S500" || fueling.TipoCombustivel == "Arla") == false {
+			err = c.Add(&fueling)
+			if err != nil {
+				errors = append(errors, fmt.Sprintf("Erro ao salvar registro: %s", err.Error()))
+				continue
+			}
 		}
 	}
+
 	return importedRecords, errors, false
 }
 
-func (c *FuelingService) convertToFueling(record dto.FuelingImport) (entities.Fueling, error) {
+func (c *FuelingService) convertToFueling(record dto.FuelingImport, fileName string) (entities.Fueling, error) {
 	// Tenta primeiro o formato com hora e minuto
 	data, err := time.Parse("02/01/2006 15:04", record.DataTransacao)
 	if err != nil {
@@ -126,57 +129,42 @@ func (c *FuelingService) convertToFueling(record dto.FuelingImport) (entities.Fu
 	}
 
 	// Buscar fornecedor pelo CNPJ
-	posto, err := c.personService.GetSupplierByCnpj(record.CnpjPosto)
+	posto, err := c.personService.GetGasStationByCnpj(record.CnpjPosto)
 	if err != nil {
 		return entities.Fueling{}, fmt.Errorf("fornecedor não encontrado: %s", err)
 	}
 
 	// Buscar veiculo pela Placa
+	if record.Placa == "ISM5693" {
+		record.Placa = "ISM5G93"
+	}
+
 	veiculo, err := c.vehicleService.GetByPlate(record.Placa)
 	if err != nil {
 		return entities.Fueling{}, fmt.Errorf("Veiculo não encontrado: %s", err)
 	}
 
-	km, err := strconv.ParseInt(record.Hodometro, 10, 64)
-	if err != nil {
-		return entities.Fueling{}, fmt.Errorf("hodômetro inválido: %s", err)
-	}
-
-	cleanedValorTotal := c.cleanString(record.ValorTotal)
-	valorTotalFloat, err := strconv.ParseFloat(cleanedValorTotal, 64)
-	if err != nil {
-		return entities.Fueling{}, fmt.Errorf("valor total inválido: %s", err)
-	}
-
-	quantidadeFloat, err := strconv.ParseFloat(strings.ReplaceAll(record.Quantidade, ",", "."), 64)
-	if err != nil {
-		return entities.Fueling{}, fmt.Errorf("quantidade inválida: %s", err)
-	}
-
-	return entities.Fueling{
+	fuel := entities.Fueling{
 		Data:            data,
 		NumeroDocumento: record.NumeroCupom,
-		Litros:          quantidadeFloat,
-		ValorTotal:      valorTotalFloat,
+		Litros:          record.QuantidadeFloat64(),
+		ValorTotal:      record.ValorTotalFloat64(),
 		PostoId:         posto.Id,
 		VeiculoId:       veiculo.Id,
-		Km:              km,
-	}, nil
-}
-
-func (c *FuelingService) cleanString(s string) string {
-	// Remove todos os pontos e vírgulas da string
-	s = strings.ReplaceAll(s, ".", "")
-	s = strings.ReplaceAll(s, ",", "")
-	return strings.TrimSpace(s)
-}
-
-func (c *FuelingService) parseFloat(s string) float64 {
-	v, err := strconv.ParseFloat(s, 64)
-	if err != nil {
-		return 0
+		Km:              record.HodometroInt64(),
 	}
-	return v
+
+	// Mapeia o tipo de combustível baseado no nome do arquivo
+	fileNameLower := strings.ToLower(fileName)
+	if strings.Contains(fileNameLower, "russi") {
+		fuel.TipoCombustivel = record.ProdutoMappedRussi()
+	} else if strings.Contains(fileNameLower, "graal") {
+		fuel.TipoCombustivel = record.ProdutoMappedGraal()
+	} else {
+		return entities.Fueling{}, fmt.Errorf("formato de arquivo não reconhecido: %s. Use arquivos com 'Russi' ou 'Graal' no nome", fileName)
+	}
+
+	return fuel, nil
 }
 
 func (c *FuelingService) isValidDate(date string) bool {
@@ -198,11 +186,6 @@ func (c *FuelingService) isValidCNPJ(cnpj string) bool {
 
 func (s *FuelingService) Add(dieselAdd *entities.Fueling) error {
 
-	//if dieselAdd.InicioViagem && dieselAdd.FinalViagem {
-	//	err := errors.New("um abastecimento não pode ser de início e final de viagem ao mesmo tempo")
-	//	return fmt.Errorf("não foi possível salvar o abastecimento: %w", err)
-	//}
-
 	return s.RepoManager.Fueling().Add(*dieselAdd)
 }
 
@@ -222,18 +205,21 @@ func (s *FuelingService) Update(dieselUpdate *entities.Fueling) error {
 	return s.RepoManager.Fueling().Update(*dieselUpdate)
 }
 
+func (s *FuelingService) GetByMonthYear(month, year int) ([]entities.Fueling, error) {
+	startDate := time.Date(year, time.Month(month), 1, 0, 0, 0, 0, time.Local)
+	endDate := startDate.AddDate(0, 1, 0).Add(-time.Second)
+
+	return s.RepoManager.Fueling().GetByDateRange(startDate, endDate)
+}
+
 func (s *FuelingService) Delete(id int64) error {
 	return s.RepoManager.Fueling().Delete(id)
 }
 
-/*func (s *FuelingService) Filter(fornecedorId *string, placa *string, dataInicial *string, dataFinal *string) ([]entities.Fueling, error) {
+// GetFuelConsumption retorna o consumo médio de combustível por veículo no período
+func (s *FuelingService) GetFuelConsumption(month, year int) ([]dto.FuelingConsumption, error) {
+	startDate := time.Date(year, time.Month(month), 1, 0, 0, 0, 0, time.Local)
+	endDate := startDate.AddDate(0, 1, 0).Add(-time.Second)
 
-	filterParams := filter.NewFuelingFilterParams(fornecedorId, placa, dataInicial, dataFinal)
-
-	dieselFilter, err := filterParams.ToFilter()
-	if err != nil {
-		return nil, err
-	}
-
-	return s.RepoManager.Fueling().Filter(*dieselFilter)
-}*/
+	return s.RepoManager.Fueling().GetFuelConsumption(startDate, endDate)
+}

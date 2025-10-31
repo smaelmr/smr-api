@@ -206,10 +206,10 @@ func (r *PersonRepository) GetSuppliers() (retVal []entities.Person, err error) 
 	return retVal, nil
 }
 
-func (r *PersonRepository) GetSupplierByCnpj(cnpj string) (entities.Person, error) {
+func (r *PersonRepository) GetGasStationByCnpj(cnpj string) (entities.Person, error) {
 	query := `
 		SELECT f.id, p.nome
-		FROM fornecedor f 
+		FROM posto f 
 		INNER JOIN pessoa p ON f.pessoa_id = p.id 
 		WHERE p.cpf_cnpj = ?`
 

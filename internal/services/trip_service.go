@@ -1,6 +1,8 @@
 package services
 
 import (
+	"time"
+
 	"github.com/smaelmr/finance-api/internal/domain/contract/repository"
 	"github.com/smaelmr/finance-api/internal/domain/entities"
 	"github.com/smaelmr/finance-api/internal/domain/entities/filter"
@@ -37,6 +39,13 @@ func (s *TripService) GetAll() ([]entities.Trip, error) {
 
 func (s *TripService) Update(tripUpdate *entities.Trip) error {
 	return s.RepoManager.Trip().Update(*tripUpdate)
+}
+
+func (s *TripService) GetByMonthYear(month, year int) ([]entities.Trip, error) {
+	startDate := time.Date(year, time.Month(month), 1, 0, 0, 0, 0, time.Local)
+	endDate := startDate.AddDate(0, 1, 0).Add(-time.Second)
+
+	return s.RepoManager.Trip().GetByDateRange(startDate, endDate)
 }
 
 func (s *TripService) Filter(clienteId, motoristaId, dataInicial, dataFinal, cavaloPlaca *string) ([]entities.Trip, error) {

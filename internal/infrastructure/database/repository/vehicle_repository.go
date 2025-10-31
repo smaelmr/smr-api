@@ -11,6 +11,26 @@ type VehicleRepository struct {
 	conn *sql.DB
 }
 
+func (r *VehicleRepository) GetByPlate(plate string) (*entities.Vehicle, error) {
+	query := `SELECT id, placa, marca, modelo, ano, tipo, created_at, updated_at FROM veiculo WHERE placa = ?`
+	row := r.conn.QueryRow(query, plate)
+	var record entities.Vehicle
+	err := row.Scan(
+		&record.Id,
+		&record.Placa,
+		&record.Marca,
+		&record.Modelo,
+		&record.Ano,
+		&record.Tipo,
+		&record.CreatedAt,
+		&record.UpdatedAt,
+	)
+	if err != nil {
+		return nil, err
+	}
+	return &record, nil
+}
+
 func NewVehicleRepository(conn *sql.DB) *VehicleRepository {
 	return &VehicleRepository{
 		conn: conn,

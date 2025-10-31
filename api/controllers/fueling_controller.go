@@ -55,35 +55,37 @@ func (c *FuelingController) HandleFueling(w http.ResponseWriter, r *http.Request
 
 		w.WriteHeader(http.StatusOK)
 	case "GET":
-		/*fornecedorId := r.URL.Query().Get("supplierId")
-		placa := r.URL.Query().Get("plate")
-		dataInicial := r.URL.Query().Get("startDate")
-		dataFinal := r.URL.Query().Get("endDate")
+		monthStr := r.URL.Query().Get("month")
+		yearStr := r.URL.Query().Get("year")
 
-		var fornecedorIdPtr, placaPtr, dataInicialPtr, dataFinalPtr *string
+		var records []entities.Fueling
+		var err error
 
-		if fornecedorId != "" {
-			fornecedorIdPtr = &fornecedorId
-		}
-		if placa != "" {
-			placaPtr = &placa
-		}
-		if dataInicial != "" {
-			dataInicialPtr = &dataInicial
-		}
-		if dataFinal != "" {
-			dataFinalPtr = &dataFinal
+		if monthStr != "" && yearStr != "" {
+			month, err := strconv.Atoi(monthStr)
+			if err != nil {
+				http.Error(w, "Mês inválido", http.StatusBadRequest)
+				return
+			}
+
+			year, err := strconv.Atoi(yearStr)
+			if err != nil {
+				http.Error(w, "Ano inválido", http.StatusBadRequest)
+				return
+			}
+
+			if month < 1 || month > 12 {
+				http.Error(w, "Mês deve estar entre 1 e 12", http.StatusBadRequest)
+				return
+			}
+
+			records, err = c.fuelingService.GetByMonthYear(month, year)
+		} else {
+			records, err = c.fuelingService.GetAll()
 		}
 
-		records, err := c.fuelingService.Filter(fornecedorIdPtr, placaPtr, dataInicialPtr, dataFinalPtr)
 		if err != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-			return
-		}*/
-
-		records, err := c.fuelingService.GetAll()
-		if err != nil {
-			w.WriteHeader(http.StatusInternalServerError)
+			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
 
@@ -110,6 +112,42 @@ func (c *FuelingController) HandleFueling(w http.ResponseWriter, r *http.Request
 	}
 }
 
+func (c *FuelingController) HandleGetConsumption(w http.ResponseWriter, r *http.Request) {
+	monthStr := r.URL.Query().Get("month")
+	yearStr := r.URL.Query().Get("year")
+
+	if monthStr != "" && yearStr != "" {
+		month, err := strconv.Atoi(monthStr)
+		if err != nil {
+			http.Error(w, "Mês inválido", http.StatusBadRequest)
+			return
+		}
+
+		year, err := strconv.Atoi(yearStr)
+		if err != nil {
+			http.Error(w, "Ano inválido", http.StatusBadRequest)
+			return
+		}
+
+		if month < 1 || month > 12 {
+			http.Error(w, "Mês deve estar entre 1 e 12", http.StatusBadRequest)
+			return
+		}
+
+		consumos, err := c.fuelingService.GetFuelConsumption(month, year)
+		if err != nil {
+			http.Error(w, "Erro ao calcular consumo: "+err.Error(), http.StatusInternalServerError)
+			return
+		}
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(consumos)
+
+	} else {
+		http.Error(w, "Mês e ano são obrigatórios", http.StatusBadRequest)
+		return
+	}
+}
+
 func (c *FuelingController) HandleImportLinxDelPozo(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, "Método não permitido", http.StatusMethodNotAllowed)
@@ -117,7 +155,7 @@ func (c *FuelingController) HandleImportLinxDelPozo(w http.ResponseWriter, r *ht
 	}
 
 	// Receber o arquivo
-	file, _, err := r.FormFile("file")
+	file, handler, err := r.FormFile("file")
 	if err != nil {
 		http.Error(w, "Erro ao receber arquivo: "+err.Error(), http.StatusBadRequest)
 		return
@@ -125,7 +163,7 @@ func (c *FuelingController) HandleImportLinxDelPozo(w http.ResponseWriter, r *ht
 	defer file.Close()
 
 	// Ler o arquivo Excel
-	importedRecords, errors, shouldReturn := c.fuelingService.ImportLinxDelPozo(file, w)
+	importedRecords, errors, shouldReturn := c.fuelingService.ImportLinxDelPozo(file, handler, w)
 	if shouldReturn {
 		return
 	}

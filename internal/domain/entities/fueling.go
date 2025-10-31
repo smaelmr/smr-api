@@ -15,6 +15,7 @@ type Fueling struct {
 	ValorTotal      float64   `json:"valorTotal"`
 	Km              int64     `json:"km"`
 	NumeroDocumento string    `json:"numeroDocumento"`
+	Cheio           bool      `json:"cheio"` //informar se o abastecimento foi completo ou parcial
 	CreatedAt       time.Time `json:"createdAt"`
 	UpdatedAt       time.Time `json:"updatedAt"`
 }

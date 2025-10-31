@@ -55,8 +55,8 @@ func (s *PersonService) GetSuppliers() ([]entities.Person, error) {
 	return suppliersList, nil
 }
 
-func (s *PersonService) GetSupplierByCnpj(cnpj string) (*entities.Person, error) {
-	person, err := s.RepoManager.Person().GetSupplierByCnpj(cnpj)
+func (s *PersonService) GetGasStationByCnpj(cnpj string) (*entities.Person, error) {
+	person, err := s.RepoManager.Person().GetGasStationByCnpj(cnpj)
 	if err != nil {
 		return nil, err
 	}

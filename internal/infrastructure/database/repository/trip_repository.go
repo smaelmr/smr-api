@@ -2,6 +2,7 @@ package repository
 
 import (
 	"database/sql"
+	"time"
 
 	"github.com/smaelmr/finance-api/internal/domain/entities"
 	"github.com/smaelmr/finance-api/internal/domain/entities/filter"
@@ -15,6 +16,50 @@ func newTripRepository(conn *sql.DB) *TripRepository {
 	return &TripRepository{
 		conn: conn,
 	}
+}
+
+func (r *TripRepository) GetByDateRange(startDate, endDate time.Time) ([]entities.Trip, error) {
+	query := `SELECT 
+		f.id, f.carreta_placa, f.cavalo_placa, f.cliente_id, 
+		f.origem_id, f.destino_final_id, f.forma_pagamento_id, 
+		f.motorista_id, f.data_carregamento, f.data_entrega, 
+		f.numero_documento, f.valor_agenciamento, f.valor_frete, 
+		f.valor_pedagio, f.observacoes
+	FROM frete f
+	WHERE f.data_carregamento BETWEEN ? AND ?
+	ORDER BY f.data_carregamento`
+
+	rows, err := r.conn.Query(query, startDate, endDate)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var records []entities.Trip
+	for rows.Next() {
+		var record entities.Trip
+		if err := rows.Scan(
+			&record.Id,
+			&record.CarretaPlaca,
+			&record.CavaloPlaca,
+			&record.ClienteId,
+			&record.OrigemId,
+			&record.DestinoFinalId,
+			&record.FormaPagamentoId,
+			&record.MotoristaId,
+			&record.DataCarregamento,
+			&record.DataEntrega,
+			&record.NumeroDocumento,
+			&record.ValorAgenciamento,
+			&record.ValorFrete,
+			&record.ValorPedagio,
+			&record.Observacoes); err != nil {
+			return nil, err
+		}
+		records = append(records, record)
+	}
+
+	return records, nil
 }
 
 func (r *TripRepository) Add(trip entities.Trip) error {
