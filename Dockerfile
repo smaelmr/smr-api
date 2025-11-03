@@ -14,7 +14,7 @@ RUN go mod download
 COPY . .
 
 # Build the application
-RUN CGO_ENABLED=0 GOOS=linux go build -o server ./cmd/main.go
+RUN CGO_ENABLED=0 GOOS=linux go build -o api ./cmd/main.go
 
 # Final stage
 FROM alpine:latest
@@ -22,7 +22,7 @@ FROM alpine:latest
 WORKDIR /app
 
 # Copy the binary from builder
-COPY --from=builder /app/server .
+COPY --from=builder /app/api .
 
 # Create config.json with environment variables
 RUN echo '{ \
@@ -32,6 +32,9 @@ RUN echo '{ \
         "Host": "'${DATABASE_HOST}'", \
         "Port": '${DATABASE_PORT}', \
         "Name": "'${DATABASE_NAME}'" \
+    }, \
+    "Auth": { \
+        "SecretKey": "'${AUTH_SECRETKEY}'" \
     } \
 }' > config.json
 
@@ -42,9 +45,10 @@ ENV DATABASE_PASS=${DATABASE_PASS}
 ENV DATABASE_HOST=${DATABASE_HOST}
 ENV DATABASE_PORT=${DATABASE_PORT}
 ENV DATABASE_NAME=${DATABASE_NAME}
+ENV AUTH_SECRETKEY=${AUTH_SECRETKEY}
 
 # Expose port
 EXPOSE 8088
 
 # Command to run
-CMD ["./server"]
+CMD ["./api"]
