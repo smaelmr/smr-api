@@ -14,7 +14,7 @@ RUN go mod download
 COPY . .
 
 # Build the application
-RUN CGO_ENABLED=0 GOOS=linux go build -o api ./cmd/main.go
+RUN CGO_ENABLED=0 GOOS=linux go build -o smr-api ./cmd/main.go
 
 # Final stage
 FROM alpine:latest
@@ -28,4 +28,4 @@ COPY --from=builder /app/api .
 EXPOSE 8088
 
 # Command to run
-CMD ["./api"]
+CMD ["./smr-api"]
