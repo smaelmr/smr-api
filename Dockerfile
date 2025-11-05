@@ -22,7 +22,7 @@ FROM alpine:latest
 WORKDIR /app
 
 # Copy the binary from builder
-COPY --from=builder /app/api .
+COPY --from=builder /app/smr-api .
 
 # Expose port
 EXPOSE 8088
