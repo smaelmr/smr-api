@@ -34,7 +34,7 @@ services:
       # alinhe com o WORKDIR do Dockerfile final
       - /propertiesapp/smr-api/config/config.json:/app/config.json:ro
     depends_on:
-      mysql:
+      - mysql
         #condition: service_healthy
     environment:
       # exemplo de DSN usando o serviço mysql na rede
