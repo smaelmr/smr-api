@@ -25,7 +25,7 @@ WORKDIR /app/bin
 COPY --from=builder /app/smr-api .
 
 # Expose port
-EXPOSE 8088
+EXPOSE 8080
 
 # Command to run
 CMD ["./smr-api"]

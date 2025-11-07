@@ -1,0 +1,35 @@
+
+volumes:
+  mysql-data:
+
+networks:
+  app-net:
+    driver: bridge
+    external: true
+
+services:
+  mysql:
+    image: mysql:8.3.0
+    environment:
+      MYSQL_ROOT_PASSWORD: SMR@9974!*$
+      MYSQL_DATABASE: smrdb
+      MYSQL_USER: smr-user
+      MYSQL_PASSWORD: SMR@9974!
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+    networks:
+      - app-net
+
+  api:
+    build: .
+    container_name: smr-api
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./config/config.json:/app/bin/config/config.json
+    depends_on:
+      - mysql
+    networks:
+      - app-net
