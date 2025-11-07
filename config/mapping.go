@@ -15,4 +15,5 @@ type mysql struct {
 
 type Auth struct {
 	SecretKey string `json:"secretKey"`
+	Teste     string `json:"teste"`
 }

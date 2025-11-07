@@ -64,6 +64,8 @@ func loadConfig() *config.Config {
 		log.Fatalf("Erro ao carregar configuração: %v", err)
 	}
 
+	log.Printf("leu o config: %+s", conf.Auth.Teste)
+
 	return conf
 }
 

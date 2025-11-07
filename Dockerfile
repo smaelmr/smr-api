@@ -17,9 +17,9 @@ COPY . .
 RUN CGO_ENABLED=0 GOOS=linux go build -o smr-api ./cmd/main.go
 
 # Final stage
-FROM alpine:latest
+FROM golang:1.23-alpine
 
-WORKDIR /app
+WORKDIR /app/bin
 
 # Copy the binary from builder
 COPY --from=builder /app/smr-api .
