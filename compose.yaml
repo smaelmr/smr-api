@@ -27,7 +27,7 @@ services:
     ports:
       - "8080:8080"
     volumes:
-      - /propertiesapp/smr-api/config/config.json:/usr/src/app/bin/config/config.json
+      - /propertiesapp/smr-api/config/config.json:/usr/src/app/bin/config.json
     depends_on:
       - mysql
     networks:
