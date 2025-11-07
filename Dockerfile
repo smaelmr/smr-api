@@ -1,31 +1,16 @@
-# Build stage
+# Build
 FROM golang:1.23-alpine AS builder
-
-# Set working directory
-WORKDIR /usr/src/app
-
-# Copy go mod and sum files
+WORKDIR /app
 COPY go.mod go.sum ./
-
-# Download dependencies
 RUN go mod download
-
-# Copy the source code
 COPY . .
+RUN CGO_ENABLED=0 GOOS=linux go build -trimpath -ldflags="-s -w" -o smr-api ./cmd/main.go
 
-# Build the application
-RUN CGO_ENABLED=0 GOOS=linux go build -o smr-api ./cmd/main.go
-
-# Final stage
-FROM golang:1.23-alpine
-
-WORKDIR /usr/src/app/bin
-
-# Copy the binary from builder
-COPY --from=builder /usr/src/app/smr-api .
-
-# Expose port
+# Final (distroless) — alternativa: FROM scratch
+FROM gcr.io/distroless/static:nonroot
+WORKDIR /app
+COPY --from=builder /app/smr-api /app/smr-api
+# Se precisa de config por bind mount, garanta o path /app/config.json no compose
+USER nonroot:nonroot
 EXPOSE 8080
-
-# Command to run
-CMD ["./smr-api"]
+ENTRYPOINT ["/app/smr-api"]

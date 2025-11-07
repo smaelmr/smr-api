@@ -2,24 +2,28 @@ package main
 
 import (
 	"log"
+	"net/http"
 	"os"
 
 	_ "github.com/go-sql-driver/mysql"
+	"github.com/rs/cors"
+	"github.com/smaelmr/finance-api/api"
 	"github.com/smaelmr/finance-api/config"
 	"github.com/smaelmr/finance-api/internal/auth"
 	"github.com/smaelmr/finance-api/internal/infrastructure/database"
+	"github.com/smaelmr/finance-api/internal/infrastructure/database/repository"
 )
 
 func main() {
 	conf := loadConfig()
-	//database := setupDatabase(conf)
+	database := setupDatabase(conf)
 
 	// Inicializar o serviço de autenticação
 	jwtService := auth.NewJWTAuthService(conf.Auth.SecretKey)
 	auth.InitAuthMiddleware(jwtService)
 
 	// Inicializar o repositório
-	/*repo := repository.NewRepo(database.DB)
+	repo := repository.NewRepo(database.DB)
 
 	// Configurar o router
 	router := api.SetupRouter(repo, jwtService)
@@ -33,10 +37,10 @@ func main() {
 	})
 
 	// Rodar o servidor com o middleware CORS
-	handler := c.Handler(router)*/
+	handler := c.Handler(router)
 
 	log.Println("Servidor rodando na porta 8088")
-	//log.Fatal(http.ListenAndServe(":8088", handler))
+	log.Fatal(http.ListenAndServe(":8088", handler))
 }
 
 func loadConfig() *config.Config {
@@ -46,7 +50,7 @@ func loadConfig() *config.Config {
 
 	// Se não encontrar, tenta no diretório config
 	if _, err := os.Stat(configFilePath); err != nil {
-		configFilePath = "./config"
+		configFilePath = "/app/config"
 	}
 
 	log.Printf("Tentando carregar configuração de: %s", configFilePath)
