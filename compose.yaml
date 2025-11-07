@@ -32,7 +32,7 @@ services:
       - "8080:8080"
     volumes:
       # alinhe com o WORKDIR do Dockerfile final
-      - /propertiesapp/smr-api/config/config.json:/app/config.json:ro
+      - /propertiesapp/smr-api/config/config.json:/app/config/config.json:ro
     depends_on:
       - mysql
         #condition: service_healthy
