@@ -50,7 +50,7 @@ func loadConfig() *config.Config {
 
 	// Se não encontrar, tenta no diretório config
 	if _, err := os.Stat(configFilePath); err != nil {
-		configFilePath = "/app/config"
+		configFilePath = "./config"
 	}
 
 	log.Printf("Tentando carregar configuração de: %s", configFilePath)
