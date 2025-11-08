@@ -9,8 +9,11 @@ RUN CGO_ENABLED=0 GOOS=linux go build -trimpath -ldflags="-s -w" -o smr-api ./cm
 # Final (distroless) — alternativa: FROM scratch
 FROM gcr.io/distroless/static:nonroot
 WORKDIR /app
-COPY --from=builder /app/smr-api /app/smr-api
-# Se precisa de config por bind mount, garanta o path /app/config.json no compose
+COPY --from=builder /app/smr-api .
+
+# Crie o diretório de configuração, se necessário (o bind mount irá sobrescrevê-lo, mas é uma boa prática)
+RUN mkdir -p /app/config
+
 USER nonroot:nonroot
 EXPOSE 8080
 ENTRYPOINT ["/app/smr-api"]
