@@ -13,18 +13,12 @@ services:
       MYSQL_DATABASE: smrdb
       MYSQL_USER: smr-user
       MYSQL_PASSWORD: SMR@9974!
-      # MYSQL_AUTHENTICATION_PLUGIN: caching_sha2_password
     volumes:
       - mysql-data:/var/lib/mysql
     ports:
       - "3306:3306"
     networks:
       - app-net
-    #healthcheck:
-    #  test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -u smr-user -p SMR@9974! || exit 1"]
-    #  interval: 10s
-    #  timeout: 5s
-    #  retries: 10
     restart: unless-stopped
 
   api:
@@ -44,3 +38,16 @@ services:
       TZ: "America/Sao_Paulo"
     networks:
       - app-net
+
+  frontend:
+    image: node:18
+    working_dir: /app
+    volumes:
+      - ./smr-controller:/app
+    command: npm start
+    ports:
+      - "3000:3000"
+    networks:
+      - app-net
+    depends_on:
+      - api
