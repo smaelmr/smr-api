@@ -39,8 +39,8 @@ func main() {
 	// Rodar o servidor com o middleware CORS
 	handler := c.Handler(router)
 
-	log.Println("Servidor rodando na porta 8088")
-	log.Fatal(http.ListenAndServe(":8088", handler))
+	log.Println("Servidor rodando na porta 8080")
+	log.Fatal(http.ListenAndServe(":8080", handler))
 }
 
 func loadConfig() *config.Config {

@@ -16,5 +16,5 @@ COPY --from=builder /app/smr-api .
 # Crie o diretório de configuração, se necessário (o bind mount irá sobrescrevê-lo, mas é uma boa prática)
 RUN mkdir -p /app/config
 
-EXPOSE 8088
+EXPOSE 8080
 ENTRYPOINT ["/app/smr-api"]
