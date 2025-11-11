@@ -16,6 +16,8 @@ services:
       # MYSQL_AUTHENTICATION_PLUGIN: caching_sha2_password
     volumes:
       - mysql-data:/var/lib/mysql
+    ports:
+      - "3306:3306"
     networks:
       - app-net
     #healthcheck:
