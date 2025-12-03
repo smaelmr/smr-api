@@ -22,7 +22,7 @@ services:
       dockerfile: Dockerfile
     container_name: smr-frontend
     ports:
-      - "3030:88"
+      - "3030:80"
     networks:
       - smrcontroller-net
     depends_on:
