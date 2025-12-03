@@ -184,23 +184,68 @@ func (r *PersonRepository) GetClients() (retVal []entities.Person, err error) {
 }
 
 func (r *PersonRepository) GetSuppliers() (retVal []entities.Person, err error) {
-	query := `SELECT f.id, p.nome FROM pessoa p INNER JOIN fornecedor f ON p.id = f.pessoa_id ORDER BY p.nome`
+	query := `SELECT f.id, p.nome, p.cpf_cnpj, p.nome_contato, p.telefone, p.cep, 
+		p.cidade, p.estado, p.rua, p.numero, p.bairro 
+		FROM pessoa p 
+		INNER JOIN fornecedor f ON p.id = f.pessoa_id ORDER BY p.nome`
+
 	rows, err := r.conn.Query(query)
 	if err != nil {
 		return nil, err
 	}
+	defer rows.Close()
 
 	for rows.Next() {
-		customer := entities.Person{}
+		var supplier entities.Person
+		var document, contact, phone, cep, city, state, street, number, neighborhood sql.NullString
+
 		err = rows.Scan(
-			&customer.Id,
-			&customer.Name,
+			&supplier.Id,
+			&supplier.Name,
+			&document,
+			&contact,
+			&phone,
+			&cep,
+			&city,
+			&state,
+			&street,
+			&number,
+			&neighborhood,
 		)
 		if err != nil {
 			return nil, err
 		}
 
-		retVal = append(retVal, customer)
+		// Converter os campos NULL para string vazia
+		if document.Valid {
+			supplier.Document = document.String
+		}
+		if contact.Valid {
+			supplier.Contact = contact.String
+		}
+		if phone.Valid {
+			supplier.PhoneNumber = phone.String
+		}
+		if cep.Valid {
+			supplier.Cep = cep.String
+		}
+		if city.Valid {
+			supplier.City = city.String
+		}
+		if state.Valid {
+			supplier.State = state.String
+		}
+		if street.Valid {
+			supplier.Street = street.String
+		}
+		if number.Valid {
+			supplier.StreetNumber = number.String
+		}
+		if neighborhood.Valid {
+			supplier.Neighborhood = neighborhood.String
+		}
+
+		retVal = append(retVal, supplier)
 	}
 
 	return retVal, nil
