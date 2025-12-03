@@ -36,6 +36,7 @@ func SetupRouter(repo *repository.Repo, jwtService *auth.JWTAuthService) *chi.Mu
 		dieselService := services.NewFuelingService(repo, personService, vehicleService)
 		cityService := services.NewCityService(repo)
 		tripService := services.NewTripService(repo)
+		categoryService := services.NewCategoryService(repo)
 
 		// Montar rotas
 		r.Mount("/api/v1/person", routes.NewPersonRoutes(personService))
@@ -43,6 +44,7 @@ func SetupRouter(repo *repository.Repo, jwtService *auth.JWTAuthService) *chi.Mu
 		r.Mount("/api/v1/city", routes.NewCityRoutes(cityService))
 		r.Mount("/api/v1/trip", routes.NewTripRoutes(tripService))
 		r.Mount("/api/v1/vehicle", routes.NewVehicleRoutes(vehicleService))
+		r.Mount("/api/v1/category", routes.NewCategoryRoutes(categoryService))
 	})
 
 	return r

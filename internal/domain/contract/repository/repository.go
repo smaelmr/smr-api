@@ -15,6 +15,7 @@ type RepoManager interface {
 	Trip() TripRepository
 	Finance() FinanceRepository
 	Vehicle() VehicleRepository
+	Category() CategoryRepository
 }
 
 type FuelingRepository interface {
@@ -74,4 +75,12 @@ type VehicleRepository interface {
 	Update(vehicle entities.Vehicle) error
 	Delete(id int64) error
 	GetByPlate(plate string) (*entities.Vehicle, error)
+}
+
+type CategoryRepository interface {
+	Add(category entities.Category) error
+	GetAll() ([]entities.Category, error)
+	GetByType(categoryType string) ([]entities.Category, error)
+	Get(id int64) (*entities.Category, error)
+	Delete(id int64) error
 }

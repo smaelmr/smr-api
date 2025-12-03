@@ -42,3 +42,7 @@ func (c *Repo) Trip() repository.TripRepository {
 func (c *Repo) Finance() repository.FinanceRepository {
 	return newFinanceRepository(c.conn)
 }
+
+func (c *Repo) Category() repository.CategoryRepository {
+	return newCategoryRepository(c.conn)
+}

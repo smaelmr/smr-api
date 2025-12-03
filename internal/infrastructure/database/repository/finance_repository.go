@@ -24,8 +24,8 @@ func (r *FinanceRepository) Add(record entities.Finance) error {
 
 	query := `INSERT INTO financeiro 
 	(pessoa_id, valor, numero_documento, data_lancamento, data_vencimento, 
-	data_realizacao, origem, observacao, recebido, created_at, updated_at)
-	VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+	data_realizacao, origem, origem_id, observacao, realizado, created_at, updated_at)
+	VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
 
 	result, err := r.conn.Exec(query,
 		record.PessoaId,
@@ -35,8 +35,9 @@ func (r *FinanceRepository) Add(record entities.Finance) error {
 		record.DataVencimento,
 		record.DataRealizacao,
 		record.Origem,
+		record.OrigemId,
 		record.Observacao,
-		record.Recebido,
+		record.Realizado,
 		record.CreatedAt,
 		record.UpdatedAt)
 
@@ -56,8 +57,8 @@ func (r *FinanceRepository) Add(record entities.Finance) error {
 func (r *FinanceRepository) Get(id int64) (*entities.Finance, error) {
 	query := `SELECT 
 		id, pessoa_id, valor, numero_documento, data_lancamento, 
-		data_vencimento, data_realizacao, origem, observacao, 
-		recebido, created_at, updated_at
+		data_vencimento, data_realizacao, origem, origem_id, observacao, 
+		realizado, created_at, updated_at
 	FROM financeiro WHERE id = ?`
 
 	row := r.conn.QueryRow(query, id)
@@ -72,8 +73,9 @@ func (r *FinanceRepository) Get(id int64) (*entities.Finance, error) {
 		&record.DataVencimento,
 		&record.DataRealizacao,
 		&record.Origem,
+		&record.OrigemId,
 		&record.Observacao,
-		&record.Recebido,
+		&record.Realizado,
 		&record.CreatedAt,
 		&record.UpdatedAt)
 	if err != nil {
@@ -86,8 +88,8 @@ func (r *FinanceRepository) Get(id int64) (*entities.Finance, error) {
 func (r *FinanceRepository) GetAll() ([]entities.Finance, error) {
 	query := `SELECT 
 		id, pessoa_id, valor, numero_documento, data_lancamento, 
-		data_vencimento, data_realizacao, origem, observacao, 
-		recebido, created_at, updated_at
+		data_vencimento, data_realizacao, origem, origem_id, observacao, 
+		realizado, created_at, updated_at
 	FROM financeiro`
 
 	rows, err := r.conn.Query(query)
@@ -108,8 +110,9 @@ func (r *FinanceRepository) GetAll() ([]entities.Finance, error) {
 			&record.DataVencimento,
 			&record.DataRealizacao,
 			&record.Origem,
+			&record.OrigemId,
 			&record.Observacao,
-			&record.Recebido,
+			&record.Realizado,
 			&record.CreatedAt,
 			&record.UpdatedAt,
 		)
@@ -131,8 +134,9 @@ func (r *FinanceRepository) Update(record entities.Finance) error {
 		data_vencimento = ?,
 		data_realizacao = ?,
 		origem = ?,
+		origem_id = ?,
 		observacao = ?,
-		recebido = ?,
+		realizado = ?,
 		updated_at = ?
 	WHERE id = ?`
 
@@ -144,8 +148,9 @@ func (r *FinanceRepository) Update(record entities.Finance) error {
 		record.DataVencimento,
 		record.DataRealizacao,
 		record.Origem,
+		record.OrigemId,
 		record.Observacao,
-		record.Recebido,
+		record.Realizado,
 		time.Now(),
 		record.Id)
 
