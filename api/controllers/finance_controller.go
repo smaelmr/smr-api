@@ -2,7 +2,7 @@ package controllers
 
 import (
 	"encoding/json"
-
+	"fmt"
 	"net/http"
 
 	"github.com/smaelmr/finance-api/internal/domain/entities"
@@ -20,24 +20,76 @@ func NewFinanceController(financeService *services.FinanceService) *FinanceContr
 }
 
 func (c *FinanceController) HandleReceipts(w http.ResponseWriter, r *http.Request) {
+	monthStr := r.URL.Query().Get("month")
+	yearStr := r.URL.Query().Get("year")
 
-	record, err := c.financeService.GetReceipts()
-	if err != nil {
-		w.WriteHeader(http.StatusNotFound)
+	if monthStr == "" || yearStr == "" {
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(map[string]string{"error": "month and year are required"})
 		return
 	}
 
+	month := 0
+	year := 0
+	_, err := fmt.Sscanf(monthStr, "%d", &month)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(map[string]string{"error": "invalid month"})
+		return
+	}
+
+	_, err = fmt.Sscanf(yearStr, "%d", &year)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(map[string]string{"error": "invalid year"})
+		return
+	}
+
+	record, err := c.financeService.GetReceipts(month, year)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(map[string]string{"error": err.Error()})
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(record)
 }
 
 func (c *FinanceController) HandlePayments(w http.ResponseWriter, r *http.Request) {
+	monthStr := r.URL.Query().Get("month")
+	yearStr := r.URL.Query().Get("year")
 
-	record, err := c.financeService.Getpayments()
-	if err != nil {
-		w.WriteHeader(http.StatusNotFound)
+	if monthStr == "" || yearStr == "" {
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(map[string]string{"error": "month and year are required"})
 		return
 	}
 
+	month := 0
+	year := 0
+	_, err := fmt.Sscanf(monthStr, "%d", &month)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(map[string]string{"error": "invalid month"})
+		return
+	}
+
+	_, err = fmt.Sscanf(yearStr, "%d", &year)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(map[string]string{"error": "invalid year"})
+		return
+	}
+
+	record, err := c.financeService.GetPayments(month, year)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(map[string]string{"error": err.Error()})
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(record)
 }
 
@@ -66,12 +118,40 @@ func (c *FinanceController) HandleFinance(w http.ResponseWriter, r *http.Request
 		//	return
 		//}
 
-		record, err := c.financeService.GetAll()
-		if err != nil {
-			w.WriteHeader(http.StatusNotFound)
+		categoryType := r.URL.Query().Get("type")
+		monthStr := r.URL.Query().Get("month")
+		yearStr := r.URL.Query().Get("year")
+
+		if categoryType == "" || monthStr == "" || yearStr == "" {
+			w.WriteHeader(http.StatusBadRequest)
+			json.NewEncoder(w).Encode(map[string]string{"error": "type, month and year are required"})
 			return
 		}
 
+		month := 0
+		year := 0
+		_, err := fmt.Sscanf(monthStr, "%d", &month)
+		if err != nil {
+			w.WriteHeader(http.StatusBadRequest)
+			json.NewEncoder(w).Encode(map[string]string{"error": "invalid month"})
+			return
+		}
+
+		_, err = fmt.Sscanf(yearStr, "%d", &year)
+		if err != nil {
+			w.WriteHeader(http.StatusBadRequest)
+			json.NewEncoder(w).Encode(map[string]string{"error": "invalid year"})
+			return
+		}
+
+		record, err := c.financeService.GetAll(categoryType, month, year)
+		if err != nil {
+			w.WriteHeader(http.StatusBadRequest)
+			json.NewEncoder(w).Encode(map[string]string{"error": err.Error()})
+			return
+		}
+
+		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(record)
 		// Para DELETE e UPDATE, você pode adicionar os casos aqui.
 	}

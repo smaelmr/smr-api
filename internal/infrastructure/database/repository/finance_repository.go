@@ -85,14 +85,19 @@ func (r *FinanceRepository) Get(id int64) (*entities.Finance, error) {
 	return &record, nil
 }
 
-func (r *FinanceRepository) GetAll() ([]entities.Finance, error) {
+func (r *FinanceRepository) GetAll(categoryType string, month int, year int) ([]entities.Finance, error) {
 	query := `SELECT 
-		id, pessoa_id, valor, numero_documento, data_lancamento, 
-		data_vencimento, data_realizacao, origem, origem_id, observacao, 
-		realizado, created_at, updated_at
-	FROM financeiro`
+		f.id, f.pessoa_id, f.valor, f.numero_documento, f.data_lancamento, 
+		f.data_vencimento, f.data_realizacao, f.origem, f.origem_id, f.observacao, 
+		f.realizado, f.created_at, f.updated_at
+	FROM financeiro f
+	INNER JOIN categoria c ON f.categoria_id = c.id
+	WHERE c.tipo = ?
+		AND MONTH(f.data_lancamento) = ?
+		AND YEAR(f.data_lancamento) = ?
+	ORDER BY f.data_lancamento DESC`
 
-	rows, err := r.conn.Query(query)
+	rows, err := r.conn.Query(query, categoryType, month, year)
 	if err != nil {
 		return nil, err
 	}

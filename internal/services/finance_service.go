@@ -1,6 +1,8 @@
 package services
 
 import (
+	"errors"
+
 	"github.com/smaelmr/finance-api/internal/domain/contract/repository"
 	"github.com/smaelmr/finance-api/internal/domain/entities"
 )
@@ -20,40 +22,59 @@ func (s *FinanceService) Add(bill entities.Finance) error {
 	return s.RepoManager.Finance().Add(bill)
 }
 
-func (s *FinanceService) GetAll() ([]entities.Finance, error) {
-	records, err := s.RepoManager.Finance().GetAll()
+func (s *FinanceService) GetAll(categoryType string, month int, year int) ([]entities.Finance, error) {
+	if categoryType != "R" && categoryType != "D" {
+		return nil, errors.New("type must be 'R' (receita) or 'D' (despesa)")
+	}
+
+	if month < 1 || month > 12 {
+		return nil, errors.New("month must be between 1 and 12")
+	}
+
+	if year < 1900 {
+		return nil, errors.New("year must be greater than 1900")
+	}
+
+	records, err := s.RepoManager.Finance().GetAll(categoryType, month, year)
 	if err != nil {
 		return nil, err
 	}
 
-	var dieselList []entities.Finance
-	dieselList = append(dieselList, records...)
-
-	return dieselList, nil
+	return records, nil
 }
 
-func (s *FinanceService) GetReceipts() ([]entities.Finance, error) {
-	records, err := s.RepoManager.Finance().GetAll()
+func (s *FinanceService) GetReceipts(month int, year int) ([]entities.Finance, error) {
+	if month < 1 || month > 12 {
+		return nil, errors.New("month must be between 1 and 12")
+	}
+
+	if year < 1900 {
+		return nil, errors.New("year must be greater than 1900")
+	}
+
+	records, err := s.RepoManager.Finance().GetAll("R", month, year)
 	if err != nil {
 		return nil, err
 	}
 
-	var dieselList []entities.Finance
-	dieselList = append(dieselList, records...)
-
-	return dieselList, nil
+	return records, nil
 }
 
-func (s *FinanceService) GetPayments() ([]entities.Finance, error) {
-	records, err := s.RepoManager.Finance().GetAll()
+func (s *FinanceService) GetPayments(month int, year int) ([]entities.Finance, error) {
+	if month < 1 || month > 12 {
+		return nil, errors.New("month must be between 1 and 12")
+	}
+
+	if year < 1900 {
+		return nil, errors.New("year must be greater than 1900")
+	}
+
+	records, err := s.RepoManager.Finance().GetAll("D", month, year)
 	if err != nil {
 		return nil, err
 	}
 
-	var dieselList []entities.Finance
-	dieselList = append(dieselList, records...)
-
-	return dieselList, nil
+	return records, nil
 }
 
 func (s *FinanceService) Update(dieselUpdate *entities.Finance) error {

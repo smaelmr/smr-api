@@ -64,7 +64,7 @@ type FinanceRepository interface {
 	Add(record entities.Finance) error
 	Update(record entities.Finance) error
 	Get(int64) (*entities.Finance, error)
-	GetAll() ([]entities.Finance, error)
+	GetAll(categoryType string, month int, year int) ([]entities.Finance, error)
 	Delete(int64) error
 }
 
