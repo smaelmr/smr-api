@@ -116,7 +116,7 @@ func (r *PersonRepository) AddGasStation(person entities.Person) error {
 }
 
 func (r *PersonRepository) GetClients() (retVal []entities.Person, err error) {
-	query := `SELECT m.id, p.nome, p.cpf_cnpj, p.nome_contato, p.telefone, p.cep, 
+	query := `SELECT m.id, m.pessoa_id, p.nome, p.cpf_cnpj, p.nome_contato, p.telefone, p.cep, 
 		p.cidade, p.estado, p.rua, p.numero, p.bairro 
 		FROM pessoa p 
 		INNER JOIN cliente m ON p.id = m.pessoa_id ORDER BY p.nome`
@@ -133,6 +133,7 @@ func (r *PersonRepository) GetClients() (retVal []entities.Person, err error) {
 
 		err = rows.Scan(
 			&client.Id,
+			&client.PessoaId,
 			&client.Name,
 			&document,
 			&contact,
@@ -184,7 +185,7 @@ func (r *PersonRepository) GetClients() (retVal []entities.Person, err error) {
 }
 
 func (r *PersonRepository) GetSuppliers() (retVal []entities.Person, err error) {
-	query := `SELECT f.id, p.nome, p.cpf_cnpj, p.nome_contato, p.telefone, p.cep, 
+	query := `SELECT f.id, f.pessoa_id, p.nome, p.cpf_cnpj, p.nome_contato, p.telefone, p.cep, 
 		p.cidade, p.estado, p.rua, p.numero, p.bairro 
 		FROM pessoa p 
 		INNER JOIN fornecedor f ON p.id = f.pessoa_id ORDER BY p.nome`
@@ -201,6 +202,7 @@ func (r *PersonRepository) GetSuppliers() (retVal []entities.Person, err error) 
 
 		err = rows.Scan(
 			&supplier.Id,
+			&supplier.PessoaId,
 			&supplier.Name,
 			&document,
 			&contact,
@@ -271,7 +273,7 @@ func (r *PersonRepository) GetGasStationByCnpj(cnpj string) (entities.Person, er
 }
 
 func (r *PersonRepository) GetDrivers() (retVal []entities.Driver, err error) {
-	query := `SELECT m.id, p.nome, p.cpf_cnpj, p.nome_contato, p.telefone, p.cep, 
+	query := `SELECT m.id, m.pessoa_id, p.nome, p.cpf_cnpj, p.nome_contato, p.telefone, p.cep, 
 		p.cidade, p.estado, p.rua, p.numero, p.bairro, m.cnh_categoria, m.cnh_validade, m.observacao
 		FROM pessoa p 
 		INNER JOIN motorista m ON p.id = m.pessoa_id 
@@ -289,6 +291,7 @@ func (r *PersonRepository) GetDrivers() (retVal []entities.Driver, err error) {
 
 		err = rows.Scan(
 			&driver.Id,
+			&driver.PessoaId,
 			&driver.Name,
 			&document,
 			&contact,
@@ -346,7 +349,7 @@ func (r *PersonRepository) GetDrivers() (retVal []entities.Driver, err error) {
 }
 
 func (r *PersonRepository) GetGasStations() (retVal []entities.Person, err error) {
-	query := `SELECT m.id, p.nome, p.cpf_cnpj, p.nome_contato, p.telefone, p.cep, 
+	query := `SELECT m.id, m.pessoa_id, p.nome, p.cpf_cnpj, p.nome_contato, p.telefone, p.cep, 
 		p.cidade, p.estado, p.rua, p.numero, p.bairro 
 		FROM pessoa p 
 		INNER JOIN posto m ON p.id = m.pessoa_id ORDER BY p.nome`
@@ -363,6 +366,7 @@ func (r *PersonRepository) GetGasStations() (retVal []entities.Person, err error
 
 		err = rows.Scan(
 			&gasStation.Id,
+			&gasStation.PessoaId,
 			&gasStation.Name,
 			&document,
 			&contact,
