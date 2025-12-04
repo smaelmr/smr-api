@@ -18,12 +18,12 @@ func NewCategoryService(repoManager repository.RepoManager) *CategoryService {
 }
 
 func (s *CategoryService) Add(category entities.Category) error {
-	if category.Description == "" {
-		return errors.New("description is required")
+	if category.Name == "" {
+		return errors.New("nome não pode ser vazio")
 	}
 
 	if category.Type != "R" && category.Type != "D" {
-		return errors.New("type must be 'R' (receita) or 'D' (despesa)")
+		return errors.New("tipo deve ser 'R' (receita) ou 'D' (despesa)")
 	}
 
 	return s.RepoManager.Category().Add(category)
@@ -40,7 +40,7 @@ func (s *CategoryService) GetAll() ([]entities.Category, error) {
 
 func (s *CategoryService) GetByType(categoryType string) ([]entities.Category, error) {
 	if categoryType != "R" && categoryType != "D" {
-		return nil, errors.New("type must be 'R' (receita) or 'D' (despesa)")
+		return nil, errors.New("tipo deve ser 'R' (receita) ou 'D' (despesa)")
 	}
 
 	categories, err := s.RepoManager.Category().GetByType(categoryType)

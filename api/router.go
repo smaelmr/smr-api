@@ -45,6 +45,7 @@ func SetupRouter(repo *repository.Repo, jwtService *auth.JWTAuthService) *chi.Mu
 		r.Mount("/api/v1/trip", routes.NewTripRoutes(tripService))
 		r.Mount("/api/v1/vehicle", routes.NewVehicleRoutes(vehicleService))
 		r.Mount("/api/v1/category", routes.NewCategoryRoutes(categoryService))
+		r.Mount("/api/v1/finance", routes.NewFinanceRoutes(services.NewFinanceService(repo)))
 	})
 
 	return r

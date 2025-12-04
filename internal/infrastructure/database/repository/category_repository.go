@@ -18,7 +18,7 @@ func newCategoryRepository(conn *sql.DB) *CategoryRepository {
 
 func (r *CategoryRepository) Add(category entities.Category) error {
 	query := `INSERT INTO categoria (descricao, tipo) VALUES (?, ?)`
-	_, err := r.conn.Exec(query, category.Description, category.Type)
+	_, err := r.conn.Exec(query, category.Name, category.Type)
 	return err
 }
 
@@ -33,7 +33,7 @@ func (r *CategoryRepository) GetAll() ([]entities.Category, error) {
 	var categories []entities.Category
 	for rows.Next() {
 		var category entities.Category
-		if err := rows.Scan(&category.Id, &category.Description, &category.Type); err != nil {
+		if err := rows.Scan(&category.Id, &category.Name, &category.Type); err != nil {
 			return nil, err
 		}
 		categories = append(categories, category)
@@ -57,7 +57,7 @@ func (r *CategoryRepository) GetByType(categoryType string) ([]entities.Category
 	var categories []entities.Category
 	for rows.Next() {
 		var category entities.Category
-		if err := rows.Scan(&category.Id, &category.Description, &category.Type); err != nil {
+		if err := rows.Scan(&category.Id, &category.Name, &category.Type); err != nil {
 			return nil, err
 		}
 		categories = append(categories, category)
@@ -81,7 +81,7 @@ func (r *CategoryRepository) Get(id int64) (*entities.Category, error) {
 	row := r.conn.QueryRow(query, id)
 
 	var category entities.Category
-	if err := row.Scan(&category.Id, &category.Description, &category.Type); err != nil {
+	if err := row.Scan(&category.Id, &category.Name, &category.Type); err != nil {
 		if err == sql.ErrNoRows {
 			return nil, nil
 		}

@@ -19,6 +19,28 @@ func NewFinanceController(financeService *services.FinanceService) *FinanceContr
 	}
 }
 
+func (c *FinanceController) HandleReceipts(w http.ResponseWriter, r *http.Request) {
+
+	record, err := c.financeService.GetReceipts()
+	if err != nil {
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
+
+	json.NewEncoder(w).Encode(record)
+}
+
+func (c *FinanceController) HandlePayments(w http.ResponseWriter, r *http.Request) {
+
+	record, err := c.financeService.Getpayments()
+	if err != nil {
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
+
+	json.NewEncoder(w).Encode(record)
+}
+
 func (c *FinanceController) HandleFinance(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case "POST":

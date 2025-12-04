@@ -32,6 +32,30 @@ func (s *FinanceService) GetAll() ([]entities.Finance, error) {
 	return dieselList, nil
 }
 
+func (s *FinanceService) GetReceipts() ([]entities.Finance, error) {
+	records, err := s.RepoManager.Finance().GetAll()
+	if err != nil {
+		return nil, err
+	}
+
+	var dieselList []entities.Finance
+	dieselList = append(dieselList, records...)
+
+	return dieselList, nil
+}
+
+func (s *FinanceService) GetPayments() ([]entities.Finance, error) {
+	records, err := s.RepoManager.Finance().GetAll()
+	if err != nil {
+		return nil, err
+	}
+
+	var dieselList []entities.Finance
+	dieselList = append(dieselList, records...)
+
+	return dieselList, nil
+}
+
 func (s *FinanceService) Update(dieselUpdate *entities.Finance) error {
 	return s.RepoManager.Finance().Update(*dieselUpdate)
 }
