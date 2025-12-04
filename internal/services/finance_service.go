@@ -40,9 +40,9 @@ func (s *FinanceService) Add(bill entities.Finance) error {
 		if i == totalParcelas {
 			// Calcular o valor já lançado nas parcelas anteriores
 			valorLancado := valorParcela * float64(i-1)
-			parcela.Valor = valorOriginal - valorLancado
+			parcela.ValorParcela = valorOriginal - valorLancado
 		} else {
-			parcela.Valor = valorParcela
+			parcela.ValorParcela = valorParcela
 		}
 
 		// Incrementar a data de vencimento baseado no número da parcela
