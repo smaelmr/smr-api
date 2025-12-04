@@ -4,8 +4,11 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strconv"
 
+	"github.com/go-chi/chi/v5"
 	"github.com/smaelmr/finance-api/internal/domain/entities"
+	"github.com/smaelmr/finance-api/internal/domain/entities/dto"
 	"github.com/smaelmr/finance-api/internal/services"
 )
 
@@ -155,4 +158,48 @@ func (c *FinanceController) HandleFinance(w http.ResponseWriter, r *http.Request
 		json.NewEncoder(w).Encode(record)
 		// Para DELETE e UPDATE, você pode adicionar os casos aqui.
 	}
+}
+
+func (c *FinanceController) HandlePayment(w http.ResponseWriter, r *http.Request) {
+	// Apenas PUT é permitido
+	if r.Method != "PUT" {
+		w.WriteHeader(http.StatusMethodNotAllowed)
+		json.NewEncoder(w).Encode(map[string]string{"error": "Method not allowed"})
+		return
+	}
+
+	// Obter o ID do lançamento da URL
+	idParam := chi.URLParam(r, "id")
+	id, err := strconv.ParseInt(idParam, 10, 64)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(map[string]string{"error": "Invalid ID"})
+		return
+	}
+
+	// Decodificar o body da requisição
+	var paymentReq dto.PaymentRequest
+	err = json.NewDecoder(r.Body).Decode(&paymentReq)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(map[string]string{"error": "Invalid request body"})
+		return
+	}
+
+	// Processar o pagamento
+	err = c.financeService.ProcessPayment(
+		id,
+		paymentReq.ValorPago,
+		paymentReq.DataRealizacao,
+		paymentReq.FormaPagamentoId,
+		paymentReq.LancarDiferenca,
+	)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(map[string]string{"error": err.Error()})
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(map[string]string{"message": "Payment processed successfully"})
 }

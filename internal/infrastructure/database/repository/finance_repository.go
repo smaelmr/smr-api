@@ -35,10 +35,26 @@ func (r *FinanceRepository) Add(record entities.Finance) error {
 		dataRealizacao = *record.DataRealizacao
 	}
 
+	// Tratar FormaPagamentoId: se for nil ou zero, salvar como NULL
+	var formaPagamentoId interface{}
+	if record.FormaPagamentoId == nil || *record.FormaPagamentoId == 0 {
+		formaPagamentoId = nil
+	} else {
+		formaPagamentoId = *record.FormaPagamentoId
+	}
+
+	// Tratar ValorPago: se for nil, salvar como NULL
+	var valorPago interface{}
+	if record.ValorPago == nil {
+		valorPago = nil
+	} else {
+		valorPago = *record.ValorPago
+	}
+
 	query := `INSERT INTO financeiro 
 	(pessoa_id, valor_original, numero_documento, data_competencia, data_vencimento, 
-	data_realizacao, origem, origem_id, observacao, numero_parcela, categoria_id)
-	VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+	data_realizacao, origem, origem_id, observacao, numero_parcela, categoria_id, forma_pagamento_id, valor_pago, realizado)
+	VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
 
 	result, err := r.conn.Exec(query,
 		record.PessoaId,
@@ -51,7 +67,10 @@ func (r *FinanceRepository) Add(record entities.Finance) error {
 		origemId,
 		record.Observacao,
 		record.NumeroParcela,
-		record.CategoriaId)
+		record.CategoriaId,
+		formaPagamentoId,
+		valorPago,
+		record.Realizado)
 
 	if err != nil {
 		return err
@@ -70,7 +89,7 @@ func (r *FinanceRepository) Get(id int64) (*entities.Finance, error) {
 	query := `SELECT 
 		id, pessoa_id, valor_original, numero_documento, data_competencia, 
 		data_vencimento, data_realizacao, origem, origem_id, observacao, 
-		categoria_id, created_at, updated_at
+		categoria_id, forma_pagamento_id, valor_pago, realizado, numero_parcela, created_at, updated_at
 	FROM financeiro WHERE id = ?`
 
 	row := r.conn.QueryRow(query, id)
@@ -78,11 +97,13 @@ func (r *FinanceRepository) Get(id int64) (*entities.Finance, error) {
 	var record entities.Finance
 	var dataRealizacao sql.NullTime
 	var origemId sql.NullInt64
+	var formaPagamentoId sql.NullInt64
+	var valorPago sql.NullFloat64
 
 	err := row.Scan(
 		&record.Id,
 		&record.PessoaId,
-		&record.Valor,
+		&record.ValorParcela,
 		&record.NumeroDocumento,
 		&record.DataCompetencia,
 		&record.DataVencimento,
@@ -91,6 +112,10 @@ func (r *FinanceRepository) Get(id int64) (*entities.Finance, error) {
 		&origemId,
 		&record.Observacao,
 		&record.CategoriaId,
+		&formaPagamentoId,
+		&valorPago,
+		&record.Realizado,
+		&record.NumeroParcela,
 		&record.CreatedAt,
 		&record.UpdatedAt)
 	if err != nil {
@@ -105,6 +130,15 @@ func (r *FinanceRepository) Get(id int64) (*entities.Finance, error) {
 	// Converter sql.NullInt64 para *int64
 	if origemId.Valid {
 		record.OrigemId = &origemId.Int64
+	}
+
+	if formaPagamentoId.Valid {
+		record.FormaPagamentoId = &formaPagamentoId.Int64
+	}
+
+	// Converter sql.NullFloat64 para *float64
+	if valorPago.Valid {
+		record.ValorPago = &valorPago.Float64
 	}
 
 	return &record, nil
@@ -187,6 +221,22 @@ func (r *FinanceRepository) Update(record entities.Finance) error {
 		dataRealizacao = *record.DataRealizacao
 	}
 
+	// Tratar FormaPagamentoId: se for nil ou zero, salvar como NULL
+	var formaPagamentoId interface{}
+	if record.FormaPagamentoId == nil || *record.FormaPagamentoId == 0 {
+		formaPagamentoId = nil
+	} else {
+		formaPagamentoId = *record.FormaPagamentoId
+	}
+
+	// Tratar ValorPago: se for nil, salvar como NULL
+	var valorPago interface{}
+	if record.ValorPago == nil {
+		valorPago = nil
+	} else {
+		valorPago = *record.ValorPago
+	}
+
 	query := `UPDATE financeiro SET 
 		pessoa_id = ?,
 		valor_original = ?,
@@ -198,12 +248,15 @@ func (r *FinanceRepository) Update(record entities.Finance) error {
 		origem_id = ?,
 		observacao = ?,
 		categoria_id = ?,
+		forma_pagamento_id = ?,
+		valor_pago = ?,
+		realizado = ?,
 		updated_at = ?
 	WHERE id = ?`
 
 	result, err := r.conn.Exec(query,
 		record.PessoaId,
-		record.Valor,
+		record.ValorParcela,
 		record.NumeroDocumento,
 		record.DataCompetencia,
 		record.DataVencimento,
@@ -212,6 +265,9 @@ func (r *FinanceRepository) Update(record entities.Finance) error {
 		origemId,
 		record.Observacao,
 		record.CategoriaId,
+		formaPagamentoId,
+		valorPago,
+		record.Realizado,
 		time.Now(),
 		record.Id)
 

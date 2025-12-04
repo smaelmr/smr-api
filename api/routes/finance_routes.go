@@ -13,6 +13,7 @@ func NewFinanceRoutes(service *services.FinanceService) chi.Router {
 	router.Get("/receipts", controller.HandleReceipts)
 	router.Get("/payments", controller.HandlePayments)
 	router.Post("/", controller.HandleFinance)
+	router.Put("/{id}/payment", controller.HandlePayment)
 	router.Delete("/{id}", controller.HandleFinance)
 	router.Get("/{id}", controller.HandleFinance)
 

@@ -3,6 +3,7 @@ package services
 import (
 	"errors"
 	"fmt"
+	"time"
 
 	"github.com/smaelmr/finance-api/internal/domain/contract/repository"
 	"github.com/smaelmr/finance-api/internal/domain/entities"
@@ -120,6 +121,94 @@ func (s *FinanceService) GetPayments(month int, year int) ([]entities.Finance, e
 
 func (s *FinanceService) Update(dieselUpdate *entities.Finance) error {
 	return s.RepoManager.Finance().Update(*dieselUpdate)
+}
+
+func (s *FinanceService) ProcessPayment(id int64, valorPago float64, dataRealizacao time.Time, formaPagamentoId int64, lancarDiferenca bool) error {
+	// Buscar o lançamento original
+	lancamento, err := s.RepoManager.Finance().Get(id)
+	if err != nil {
+		return err
+	}
+
+	if lancamento == nil {
+		return errors.New("finance record not found")
+	}
+
+	// Verificar se já foi realizado
+	if lancamento.Realizado {
+		return errors.New("payment already processed")
+	}
+
+	// Validações
+	if valorPago <= 0 {
+		return errors.New("valorPago must be greater than zero")
+	}
+
+	if formaPagamentoId <= 0 {
+		return errors.New("formaPagamentoId is required")
+	}
+
+	valorOriginal := lancamento.ValorParcela
+	if valorOriginal == 0 {
+		valorOriginal = lancamento.Valor
+	}
+
+	// Atualizar o lançamento original
+	lancamento.ValorPago = &valorPago
+	lancamento.DataRealizacao = &dataRealizacao
+	lancamento.FormaPagamentoId = &formaPagamentoId
+	lancamento.Realizado = true
+
+	err = s.RepoManager.Finance().Update(*lancamento)
+	if err != nil {
+		return err
+	}
+
+	// Se solicitado, lançar a diferença
+	if lancarDiferenca {
+		diferenca := valorPago - valorOriginal
+
+		// Se houver diferença (positiva ou negativa), criar novo lançamento
+		if diferenca != 0 {
+			novoLancamento := entities.Finance{
+				PessoaId:         lancamento.PessoaId,
+				CategoriaId:      lancamento.CategoriaId,
+				OrigemId:         &id, // Referenciar o lançamento original
+				Origem:           "ajuste_pagamento",
+				Valor:            diferenca,
+				ValorParcela:     diferenca,
+				NumeroParcela:    1,
+				TotalParcelas:    1,
+				NumeroDocumento:  fmt.Sprintf("%s-AJUSTE", lancamento.NumeroDocumento),
+				DataCompetencia:  dataRealizacao,
+				DataVencimento:   dataRealizacao,
+				DataRealizacao:   &dataRealizacao,
+				FormaPagamentoId: &formaPagamentoId,
+				Observacao:       fmt.Sprintf("Ajuste de pagamento - Ref: %s (Diferença: %.2f)", lancamento.NumeroDocumento, diferenca),
+				Realizado:        true,
+			}
+
+			// Determinar se é acréscimo (receita) ou desconto (despesa)
+			// Se pagou mais que o valor original, é uma despesa adicional
+			// Se pagou menos, é um desconto (receita)
+			if diferenca > 0 {
+				// Pagou mais: criar como despesa (mesma categoria se for despesa)
+				novoLancamento.Observacao += " - Acréscimo"
+			} else {
+				// Pagou menos: criar como desconto (receita)
+				novoLancamento.Valor = -diferenca
+				novoLancamento.ValorParcela = -diferenca
+				novoLancamento.Observacao += " - Desconto"
+			}
+
+			err = s.RepoManager.Finance().Add(novoLancamento)
+			if err != nil {
+				return fmt.Errorf("payment processed but failed to create difference record: %v", err)
+			}
+		}
+	}
+
+	return nil
 }
 
 /*func (s *FinanceService) Filter(fornecedorId *string, placa *string, dataInicial *string, dataFinal *string) ([]entities.Finance, error) {
