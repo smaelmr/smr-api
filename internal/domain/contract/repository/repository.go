@@ -16,6 +16,7 @@ type RepoManager interface {
 	Finance() FinanceRepository
 	Vehicle() VehicleRepository
 	Category() CategoryRepository
+	PaymentMethod() PaymentMethodRepository
 }
 
 type FuelingRepository interface {
@@ -82,5 +83,13 @@ type CategoryRepository interface {
 	GetAll() ([]entities.Category, error)
 	GetByType(categoryType string) ([]entities.Category, error)
 	Get(id int64) (*entities.Category, error)
+	Delete(id int64) error
+}
+
+type PaymentMethodRepository interface {
+	Add(paymentMethod entities.PaymentMethod) error
+	GetAll() ([]entities.PaymentMethod, error)
+	Get(id int64) (*entities.PaymentMethod, error)
+	Update(paymentMethod entities.PaymentMethod) error
 	Delete(id int64) error
 }

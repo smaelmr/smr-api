@@ -46,3 +46,7 @@ func (c *Repo) Finance() repository.FinanceRepository {
 func (c *Repo) Category() repository.CategoryRepository {
 	return newCategoryRepository(c.conn)
 }
+
+func (c *Repo) PaymentMethod() repository.PaymentMethodRepository {
+	return newPaymentMethodRepository(c.conn)
+}
