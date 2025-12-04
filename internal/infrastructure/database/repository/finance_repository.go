@@ -39,8 +39,8 @@ func (r *FinanceRepository) Add(record entities.Finance) error {
 	}
 
 	query := `INSERT INTO financeiro 
-	(pessoa_id, valor, numero_documento, data_lancamento, data_vencimento, 
-	data_realizacao, origem, origem_id, observacao, realizado, created_at, updated_at)
+	(pessoa_id, valor_original, numero_documento, data_competencia, data_vencimento, 
+	data_realizacao, origem, origem_id, observacao, created_at, updated_at)
 	VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
 
 	result, err := r.conn.Exec(query,
@@ -53,7 +53,6 @@ func (r *FinanceRepository) Add(record entities.Finance) error {
 		record.Origem,
 		origemId,
 		record.Observacao,
-		record.Realizado,
 		record.CreatedAt,
 		record.UpdatedAt)
 
@@ -72,9 +71,9 @@ func (r *FinanceRepository) Add(record entities.Finance) error {
 
 func (r *FinanceRepository) Get(id int64) (*entities.Finance, error) {
 	query := `SELECT 
-		id, pessoa_id, valor, numero_documento, data_lancamento, 
+		id, pessoa_id, valor_original, numero_documento, data_competencia, 
 		data_vencimento, data_realizacao, origem, origem_id, observacao, 
-		realizado, created_at, updated_at
+		created_at, updated_at
 	FROM financeiro WHERE id = ?`
 
 	row := r.conn.QueryRow(query, id)
@@ -94,7 +93,6 @@ func (r *FinanceRepository) Get(id int64) (*entities.Finance, error) {
 		&record.Origem,
 		&origemId,
 		&record.Observacao,
-		&record.Realizado,
 		&record.CreatedAt,
 		&record.UpdatedAt)
 	if err != nil {
@@ -116,15 +114,15 @@ func (r *FinanceRepository) Get(id int64) (*entities.Finance, error) {
 
 func (r *FinanceRepository) GetAll(categoryType string, month int, year int) ([]entities.Finance, error) {
 	query := `SELECT 
-		f.id, f.pessoa_id, f.valor, f.numero_documento, f.data_lancamento, 
+		f.id, f.pessoa_id, f.valor_original, f.numero_documento, f.data_competencia, 
 		f.data_vencimento, f.data_realizacao, f.origem, f.origem_id, f.observacao, 
-		f.realizado, f.created_at, f.updated_at
+		f.created_at, f.updated_at
 	FROM financeiro f
 	INNER JOIN categoria c ON f.categoria_id = c.id
 	WHERE c.tipo = ?
-		AND MONTH(f.data_lancamento) = ?
-		AND YEAR(f.data_lancamento) = ?
-	ORDER BY f.data_lancamento DESC`
+		AND MONTH(f.data_competencia) = ?
+		AND YEAR(f.data_competencia) = ?
+	ORDER BY f.data_competencia DESC`
 
 	rows, err := r.conn.Query(query, categoryType, month, year)
 	if err != nil {
@@ -149,7 +147,6 @@ func (r *FinanceRepository) GetAll(categoryType string, month int, year int) ([]
 			&record.Origem,
 			&origemId,
 			&record.Observacao,
-			&record.Realizado,
 			&record.CreatedAt,
 			&record.UpdatedAt,
 		)
@@ -192,15 +189,14 @@ func (r *FinanceRepository) Update(record entities.Finance) error {
 
 	query := `UPDATE financeiro SET 
 		pessoa_id = ?,
-		valor = ?,
+		valor_original = ?,
 		numero_documento = ?,
-		data_lancamento = ?,
+		data_competencia = ?,
 		data_vencimento = ?,
 		data_realizacao = ?,
 		origem = ?,
 		origem_id = ?,
 		observacao = ?,
-		realizado = ?,
 		updated_at = ?
 	WHERE id = ?`
 
@@ -214,7 +210,6 @@ func (r *FinanceRepository) Update(record entities.Finance) error {
 		record.Origem,
 		origemId,
 		record.Observacao,
-		record.Realizado,
 		time.Now(),
 		record.Id)
 
