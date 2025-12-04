@@ -22,6 +22,22 @@ func (r *FinanceRepository) Add(record entities.Finance) error {
 	record.CreatedAt = now
 	record.UpdatedAt = now
 
+	// Tratar OrigemId: se for nil ou zero, salvar como NULL
+	var origemId interface{}
+	if record.OrigemId == nil || *record.OrigemId == 0 {
+		origemId = nil
+	} else {
+		origemId = *record.OrigemId
+	}
+
+	// Tratar DataRealizacao: se for nil ou zero, salvar como NULL
+	var dataRealizacao interface{}
+	if record.DataRealizacao == nil || record.DataRealizacao.IsZero() {
+		dataRealizacao = nil
+	} else {
+		dataRealizacao = *record.DataRealizacao
+	}
+
 	query := `INSERT INTO financeiro 
 	(pessoa_id, valor, numero_documento, data_lancamento, data_vencimento, 
 	data_realizacao, origem, origem_id, observacao, realizado, created_at, updated_at)
@@ -33,9 +49,9 @@ func (r *FinanceRepository) Add(record entities.Finance) error {
 		record.NumeroDocumento,
 		record.DataLancamento,
 		record.DataVencimento,
-		record.DataRealizacao,
+		dataRealizacao,
 		record.Origem,
-		record.OrigemId,
+		origemId,
 		record.Observacao,
 		record.Realizado,
 		record.CreatedAt,
@@ -64,6 +80,9 @@ func (r *FinanceRepository) Get(id int64) (*entities.Finance, error) {
 	row := r.conn.QueryRow(query, id)
 
 	var record entities.Finance
+	var dataRealizacao sql.NullTime
+	var origemId sql.NullInt64
+
 	err := row.Scan(
 		&record.Id,
 		&record.PessoaId,
@@ -71,15 +90,25 @@ func (r *FinanceRepository) Get(id int64) (*entities.Finance, error) {
 		&record.NumeroDocumento,
 		&record.DataLancamento,
 		&record.DataVencimento,
-		&record.DataRealizacao,
+		&dataRealizacao,
 		&record.Origem,
-		&record.OrigemId,
+		&origemId,
 		&record.Observacao,
 		&record.Realizado,
 		&record.CreatedAt,
 		&record.UpdatedAt)
 	if err != nil {
 		return nil, err
+	}
+
+	// Converter sql.NullTime para *time.Time
+	if dataRealizacao.Valid {
+		record.DataRealizacao = &dataRealizacao.Time
+	}
+
+	// Converter sql.NullInt64 para *int64
+	if origemId.Valid {
+		record.OrigemId = &origemId.Int64
 	}
 
 	return &record, nil
@@ -106,6 +135,9 @@ func (r *FinanceRepository) GetAll(categoryType string, month int, year int) ([]
 	var records []entities.Finance
 	for rows.Next() {
 		var record entities.Finance
+		var dataRealizacao sql.NullTime
+		var origemId sql.NullInt64
+
 		err := rows.Scan(
 			&record.Id,
 			&record.PessoaId,
@@ -113,9 +145,9 @@ func (r *FinanceRepository) GetAll(categoryType string, month int, year int) ([]
 			&record.NumeroDocumento,
 			&record.DataLancamento,
 			&record.DataVencimento,
-			&record.DataRealizacao,
+			&dataRealizacao,
 			&record.Origem,
-			&record.OrigemId,
+			&origemId,
 			&record.Observacao,
 			&record.Realizado,
 			&record.CreatedAt,
@@ -124,6 +156,17 @@ func (r *FinanceRepository) GetAll(categoryType string, month int, year int) ([]
 		if err != nil {
 			return nil, err
 		}
+
+		// Converter sql.NullTime para *time.Time
+		if dataRealizacao.Valid {
+			record.DataRealizacao = &dataRealizacao.Time
+		}
+
+		// Converter sql.NullInt64 para *int64
+		if origemId.Valid {
+			record.OrigemId = &origemId.Int64
+		}
+
 		records = append(records, record)
 	}
 
@@ -131,6 +174,22 @@ func (r *FinanceRepository) GetAll(categoryType string, month int, year int) ([]
 }
 
 func (r *FinanceRepository) Update(record entities.Finance) error {
+	// Tratar OrigemId: se for nil ou zero, salvar como NULL
+	var origemId interface{}
+	if record.OrigemId == nil || *record.OrigemId == 0 {
+		origemId = nil
+	} else {
+		origemId = *record.OrigemId
+	}
+
+	// Tratar DataRealizacao: se for nil ou zero, salvar como NULL
+	var dataRealizacao interface{}
+	if record.DataRealizacao == nil || record.DataRealizacao.IsZero() {
+		dataRealizacao = nil
+	} else {
+		dataRealizacao = *record.DataRealizacao
+	}
+
 	query := `UPDATE financeiro SET 
 		pessoa_id = ?,
 		valor = ?,
@@ -151,9 +210,9 @@ func (r *FinanceRepository) Update(record entities.Finance) error {
 		record.NumeroDocumento,
 		record.DataLancamento,
 		record.DataVencimento,
-		record.DataRealizacao,
+		dataRealizacao,
 		record.Origem,
-		record.OrigemId,
+		origemId,
 		record.Observacao,
 		record.Realizado,
 		time.Now(),

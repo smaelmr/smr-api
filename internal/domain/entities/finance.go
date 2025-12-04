@@ -3,21 +3,22 @@ package entities
 import "time"
 
 type Finance struct {
-	Id              int64     `json:"id"`
-	PessoaId        int64     `json:"pessoaId"`
-	CategoriaId     int64     `json:"categoriaId"`
-	OrigemId        int64     `json:"lancamentoId"`   // ID do lançamento pai, pode ser manutenção, abastecimento ou frete. Origem manual será null
-	Origem          string    `json:"lancamentoTipo"` // Descrição do tipo de lançamento: manutenção, abastecimento, frete ou manual
-	Valor           float64   `json:"valor"`
-	NumeroParcela   int32     `json:"numeroParcela"`
-	NumeroDocumento string    `json:"numeroDocumento"`
-	DataLancamento  time.Time `json:"dataLancamento"`
-	DataVencimento  time.Time `json:"dataVencimento"`
-	DataRealizacao  time.Time `json:"dataRealizacao"`
-	Observacao      string    `json:"observacao"`
-	Realizado       bool      `json:"realizado"`
-	CreatedAt       time.Time `json:"createdAt"`
-	UpdatedAt       time.Time `json:"updatedAt"`
+	Id              int64      `json:"id"`
+	PessoaId        int64      `json:"pessoaId"`
+	CategoriaId     int64      `json:"categoriaId"`
+	OrigemId        *int64     `json:"lancamentoId"`   // ID do lançamento pai, pode ser manutenção, abastecimento ou frete. Origem manual será null
+	Origem          string     `json:"lancamentoTipo"` // Descrição do tipo de lançamento: manutenção, abastecimento, frete ou manual
+	Valor           float64    `json:"valor"`
+	NumeroParcela   int32      `json:"numeroParcela"`
+	TotalParcelas   int32      `json:"totalParcelas"` // Número total de parcelas (usado na criação para gerar múltiplos registros)
+	NumeroDocumento string     `json:"numeroDocumento"`
+	DataLancamento  time.Time  `json:"dataLancamento"`
+	DataVencimento  time.Time  `json:"dataVencimento"`
+	DataRealizacao  *time.Time `json:"dataRealizacao"`
+	Observacao      string     `json:"observacao"`
+	Realizado       bool       `json:"realizado"`
+	CreatedAt       time.Time  `json:"createdAt"`
+	UpdatedAt       time.Time  `json:"updatedAt"`
 }
 
 /*type Reader interface {
