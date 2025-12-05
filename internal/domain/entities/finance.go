@@ -19,7 +19,6 @@ type Finance struct {
 	DataVencimento   time.Time  `json:"dataVencimento"`
 	DataRealizacao   *time.Time `json:"dataRealizacao"`
 	Observacao       string     `json:"observacao"`
-	Realizado        bool       `json:"realizado"`
 	CreatedAt        time.Time  `json:"createdAt"`
 	UpdatedAt        time.Time  `json:"updatedAt"`
 }

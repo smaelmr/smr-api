@@ -18,7 +18,7 @@ func newPaymentMethodRepository(conn *sql.DB) *PaymentMethodRepository {
 
 func (r *PaymentMethodRepository) Add(paymentMethod entities.PaymentMethod) error {
 	query := `INSERT INTO forma_pagamento (descricao) VALUES (?)`
-	_, err := r.conn.Exec(query, paymentMethod.Description)
+	_, err := r.conn.Exec(query, paymentMethod.Name)
 	return err
 }
 
@@ -33,7 +33,7 @@ func (r *PaymentMethodRepository) GetAll() ([]entities.PaymentMethod, error) {
 	var paymentMethods []entities.PaymentMethod
 	for rows.Next() {
 		var paymentMethod entities.PaymentMethod
-		if err := rows.Scan(&paymentMethod.Id, &paymentMethod.Description); err != nil {
+		if err := rows.Scan(&paymentMethod.Id, &paymentMethod.Name); err != nil {
 			return nil, err
 		}
 		paymentMethods = append(paymentMethods, paymentMethod)
@@ -51,7 +51,7 @@ func (r *PaymentMethodRepository) Get(id int64) (*entities.PaymentMethod, error)
 	row := r.conn.QueryRow(query, id)
 
 	var paymentMethod entities.PaymentMethod
-	if err := row.Scan(&paymentMethod.Id, &paymentMethod.Description); err != nil {
+	if err := row.Scan(&paymentMethod.Id, &paymentMethod.Name); err != nil {
 		if err == sql.ErrNoRows {
 			return nil, nil
 		}
@@ -63,7 +63,7 @@ func (r *PaymentMethodRepository) Get(id int64) (*entities.PaymentMethod, error)
 
 func (r *PaymentMethodRepository) Update(paymentMethod entities.PaymentMethod) error {
 	query := `UPDATE forma_pagamento SET descricao = ? WHERE id = ?`
-	result, err := r.conn.Exec(query, paymentMethod.Description, paymentMethod.Id)
+	result, err := r.conn.Exec(query, paymentMethod.Name, paymentMethod.Id)
 	if err != nil {
 		return err
 	}

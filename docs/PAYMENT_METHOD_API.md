@@ -163,7 +163,7 @@ curl -X DELETE http://localhost:8080/api/v1/payment-method/5
 ```go
 type PaymentMethod struct {
     Id          int64  `json:"id"`
-    Description string `json:"description"`
+    Name string `json:"name"`
 }
 ```
 

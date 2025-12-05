@@ -2,7 +2,6 @@ package repository
 
 import (
 	"database/sql"
-	"time"
 
 	"github.com/smaelmr/finance-api/internal/domain/entities"
 )
@@ -53,8 +52,9 @@ func (r *FinanceRepository) Add(record entities.Finance) error {
 
 	query := `INSERT INTO financeiro 
 	(pessoa_id, valor_original, numero_documento, data_competencia, data_vencimento, 
-	data_realizacao, origem, origem_id, observacao, numero_parcela, categoria_id, forma_pagamento_id, valor_pago, realizado)
-	VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+	data_realizacao, origem, origem_id, observacao, numero_parcela, categoria_id, 
+	forma_pagamento_id, valor_pago)
+	VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
 
 	result, err := r.conn.Exec(query,
 		record.PessoaId,
@@ -69,8 +69,7 @@ func (r *FinanceRepository) Add(record entities.Finance) error {
 		record.NumeroParcela,
 		record.CategoriaId,
 		formaPagamentoId,
-		valorPago,
-		record.Realizado)
+		valorPago)
 
 	if err != nil {
 		return err
@@ -89,7 +88,8 @@ func (r *FinanceRepository) Get(id int64) (*entities.Finance, error) {
 	query := `SELECT 
 		id, pessoa_id, valor_original, numero_documento, data_competencia, 
 		data_vencimento, data_realizacao, origem, origem_id, observacao, 
-		categoria_id, forma_pagamento_id, valor_pago, realizado, numero_parcela, created_at, updated_at
+		categoria_id, forma_pagamento_id, valor_pago, numero_parcela, 
+		created_at, updated_at
 	FROM financeiro WHERE id = ?`
 
 	row := r.conn.QueryRow(query, id)
@@ -114,7 +114,6 @@ func (r *FinanceRepository) Get(id int64) (*entities.Finance, error) {
 		&record.CategoriaId,
 		&formaPagamentoId,
 		&valorPago,
-		&record.Realizado,
 		&record.NumeroParcela,
 		&record.CreatedAt,
 		&record.UpdatedAt)
@@ -148,7 +147,8 @@ func (r *FinanceRepository) GetAll(categoryType string, month int, year int) ([]
 	query := `SELECT 
 		f.id, f.pessoa_id, f.valor_original, f.numero_documento, f.data_competencia, 
 		f.data_vencimento, f.data_realizacao, f.origem, f.origem_id, f.observacao, 
-		categoria_id, f.numero_parcela, f.created_at, f.updated_at
+		categoria_id, forma_pagamento_id, f.numero_parcela, 
+		f.created_at, f.updated_at
 	FROM financeiro f
 	INNER JOIN categoria c ON f.categoria_id = c.id
 	WHERE c.tipo = ?
@@ -171,7 +171,7 @@ func (r *FinanceRepository) GetAll(categoryType string, month int, year int) ([]
 		err := rows.Scan(
 			&record.Id,
 			&record.PessoaId,
-			&record.Valor,
+			&record.ValorParcela,
 			&record.NumeroDocumento,
 			&record.DataCompetencia,
 			&record.DataVencimento,
@@ -180,6 +180,7 @@ func (r *FinanceRepository) GetAll(categoryType string, month int, year int) ([]
 			&origemId,
 			&record.Observacao,
 			&record.CategoriaId,
+			&record.FormaPagamentoId,
 			&record.NumeroParcela,
 			&record.CreatedAt,
 			&record.UpdatedAt,
@@ -249,9 +250,7 @@ func (r *FinanceRepository) Update(record entities.Finance) error {
 		observacao = ?,
 		categoria_id = ?,
 		forma_pagamento_id = ?,
-		valor_pago = ?,
-		realizado = ?,
-		updated_at = ?
+		valor_pago = ?
 	WHERE id = ?`
 
 	result, err := r.conn.Exec(query,
@@ -267,8 +266,6 @@ func (r *FinanceRepository) Update(record entities.Finance) error {
 		record.CategoriaId,
 		formaPagamentoId,
 		valorPago,
-		record.Realizado,
-		time.Now(),
 		record.Id)
 
 	if err != nil {

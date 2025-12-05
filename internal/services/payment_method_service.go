@@ -18,7 +18,7 @@ func NewPaymentMethodService(repoManager repository.RepoManager) *PaymentMethodS
 }
 
 func (s *PaymentMethodService) Add(paymentMethod entities.PaymentMethod) error {
-	if paymentMethod.Description == "" {
+	if paymentMethod.Name == "" {
 		return errors.New("description is required")
 	}
 
@@ -47,7 +47,7 @@ func (s *PaymentMethodService) Update(paymentMethod entities.PaymentMethod) erro
 		return errors.New("invalid id")
 	}
 
-	if paymentMethod.Description == "" {
+	if paymentMethod.Name == "" {
 		return errors.New("description is required")
 	}
 

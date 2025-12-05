@@ -131,33 +131,27 @@ func (s *FinanceService) ProcessPayment(id int64, valorPago float64, dataRealiza
 	}
 
 	if lancamento == nil {
-		return errors.New("finance record not found")
+		return errors.New("registro não encontrado")
 	}
 
 	// Verificar se já foi realizado
-	if lancamento.Realizado {
-		return errors.New("payment already processed")
+	if lancamento.DataRealizacao != nil {
+		return errors.New("pagamento já processado para este lançamento")
 	}
 
 	// Validações
 	if valorPago <= 0 {
-		return errors.New("valorPago must be greater than zero")
+		return errors.New("valor do pagamento deve ser maior que zero")
 	}
 
 	if formaPagamentoId <= 0 {
-		return errors.New("formaPagamentoId is required")
-	}
-
-	valorOriginal := lancamento.ValorParcela
-	if valorOriginal == 0 {
-		valorOriginal = lancamento.Valor
+		return errors.New("forma de pagamento inválida")
 	}
 
 	// Atualizar o lançamento original
 	lancamento.ValorPago = &valorPago
 	lancamento.DataRealizacao = &dataRealizacao
 	lancamento.FormaPagamentoId = &formaPagamentoId
-	lancamento.Realizado = true
 
 	err = s.RepoManager.Finance().Update(*lancamento)
 	if err != nil {
@@ -166,44 +160,27 @@ func (s *FinanceService) ProcessPayment(id int64, valorPago float64, dataRealiza
 
 	// Se solicitado, lançar a diferença
 	if lancarDiferenca {
-		diferenca := valorPago - valorOriginal
+		diferenca := lancamento.ValorParcela - valorPago
 
-		// Se houver diferença (positiva ou negativa), criar novo lançamento
+		// Se houver diferença criar novo lançamento
 		if diferenca != 0 {
 			novoLancamento := entities.Finance{
 				PessoaId:         lancamento.PessoaId,
 				CategoriaId:      lancamento.CategoriaId,
-				OrigemId:         &id, // Referenciar o lançamento original
-				Origem:           "ajuste_pagamento",
-				Valor:            diferenca,
+				OrigemId:         lancamento.OrigemId,
+				Origem:           lancamento.Origem,
 				ValorParcela:     diferenca,
-				NumeroParcela:    1,
-				TotalParcelas:    1,
+				NumeroParcela:    lancamento.NumeroParcela,
 				NumeroDocumento:  fmt.Sprintf("%s-AJUSTE", lancamento.NumeroDocumento),
-				DataCompetencia:  dataRealizacao,
-				DataVencimento:   dataRealizacao,
-				DataRealizacao:   &dataRealizacao,
+				DataCompetencia:  lancamento.DataCompetencia,
+				DataVencimento:   lancamento.DataVencimento,
 				FormaPagamentoId: &formaPagamentoId,
 				Observacao:       fmt.Sprintf("Ajuste de pagamento - Ref: %s (Diferença: %.2f)", lancamento.NumeroDocumento, diferenca),
-				Realizado:        true,
-			}
-
-			// Determinar se é acréscimo (receita) ou desconto (despesa)
-			// Se pagou mais que o valor original, é uma despesa adicional
-			// Se pagou menos, é um desconto (receita)
-			if diferenca > 0 {
-				// Pagou mais: criar como despesa (mesma categoria se for despesa)
-				novoLancamento.Observacao += " - Acréscimo"
-			} else {
-				// Pagou menos: criar como desconto (receita)
-				novoLancamento.Valor = -diferenca
-				novoLancamento.ValorParcela = -diferenca
-				novoLancamento.Observacao += " - Desconto"
 			}
 
 			err = s.RepoManager.Finance().Add(novoLancamento)
 			if err != nil {
-				return fmt.Errorf("payment processed but failed to create difference record: %v", err)
+				return fmt.Errorf("pagamento processado, mas falhou ao criar lançamento de ajuste: %v", err)
 			}
 		}
 	}
