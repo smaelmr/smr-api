@@ -1,6 +1,9 @@
 package entities
 
-import "time"
+import (
+	"encoding/json"
+	"time"
+)
 
 type Finance struct {
 	Id               int64      `json:"id"`
@@ -21,6 +24,41 @@ type Finance struct {
 	Observacao       string     `json:"observacao"`
 	CreatedAt        time.Time  `json:"createdAt"`
 	UpdatedAt        time.Time  `json:"updatedAt"`
+}
+
+// GetStatus retorna o status do lançamento baseado na data de realização e vencimento
+func (f *Finance) GetStatus() string {
+	// Se tem data de realização, está pago/recebido
+	if f.DataRealizacao != nil {
+		return "Pago/Recebido"
+	}
+
+	// Se não tem data de realização, verificar vencimento
+	hoje := time.Now()
+
+	// Normalizar as datas para comparação apenas de dia (sem hora)
+	hojeNormalizado := time.Date(hoje.Year(), hoje.Month(), hoje.Day(), 0, 0, 0, 0, hoje.Location())
+	vencimentoNormalizado := time.Date(f.DataVencimento.Year(), f.DataVencimento.Month(), f.DataVencimento.Day(), 0, 0, 0, 0, f.DataVencimento.Location())
+
+	// Se já passou do vencimento
+	if hojeNormalizado.After(vencimentoNormalizado) {
+		return "Em Atraso"
+	}
+
+	// Caso contrário, está em aberto dentro do prazo
+	return "Em Aberto"
+}
+
+// MarshalJSON customiza a serialização JSON para incluir o campo Status dinamicamente
+func (f *Finance) MarshalJSON() ([]byte, error) {
+	type Alias Finance
+	return json.Marshal(&struct {
+		*Alias
+		Status string `json:"status"`
+	}{
+		Alias:  (*Alias)(f),
+		Status: f.GetStatus(),
+	})
 }
 
 /*type Reader interface {

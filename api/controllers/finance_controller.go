@@ -156,6 +156,36 @@ func (c *FinanceController) HandleFinance(w http.ResponseWriter, r *http.Request
 
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(record)
+	case "PUT":
+		// Update a finance record
+		idParam := chi.URLParam(r, "id")
+		id, err := strconv.ParseInt(idParam, 10, 64)
+		if err != nil {
+			w.WriteHeader(http.StatusBadRequest)
+			json.NewEncoder(w).Encode(map[string]string{"error": "Invalid ID"})
+			return
+		}
+
+		var record entities.Finance
+		err = json.NewDecoder(r.Body).Decode(&record)
+		if err != nil {
+			w.WriteHeader(http.StatusBadRequest)
+			json.NewEncoder(w).Encode(map[string]string{"error": "Invalid request body"})
+			return
+		}
+
+		// Garantir que o ID da URL seja usado
+		record.Id = id
+
+		err = c.financeService.Update(&record)
+		if err != nil {
+			w.WriteHeader(http.StatusBadRequest)
+			json.NewEncoder(w).Encode(map[string]string{"error": err.Error()})
+			return
+		}
+
+		w.WriteHeader(http.StatusOK)
+		json.NewEncoder(w).Encode(map[string]string{"message": "Finance record updated successfully"})
 		// Para DELETE e UPDATE, você pode adicionar os casos aqui.
 	}
 }

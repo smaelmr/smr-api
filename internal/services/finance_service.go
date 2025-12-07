@@ -119,8 +119,35 @@ func (s *FinanceService) GetPayments(month int, year int) ([]entities.Finance, e
 	return records, nil
 }
 
-func (s *FinanceService) Update(dieselUpdate *entities.Finance) error {
-	return s.RepoManager.Finance().Update(*dieselUpdate)
+func (s *FinanceService) Update(financeUpdate *entities.Finance) error {
+	// Validações básicas
+	if financeUpdate.Id <= 0 {
+		return errors.New("invalid id")
+	}
+
+	if financeUpdate.PessoaId <= 0 {
+		return errors.New("pessoaId is required")
+	}
+
+	if financeUpdate.CategoriaId <= 0 {
+		return errors.New("categoriaId is required")
+	}
+
+	if financeUpdate.ValorParcela <= 0 && financeUpdate.Valor <= 0 {
+		return errors.New("valor or valorParcela must be greater than zero")
+	}
+
+	// Verificar se o registro existe
+	existing, err := s.RepoManager.Finance().Get(financeUpdate.Id)
+	if err != nil {
+		return err
+	}
+
+	if existing == nil {
+		return errors.New("finance record not found")
+	}
+
+	return s.RepoManager.Finance().Update(*financeUpdate)
 }
 
 func (s *FinanceService) ProcessPayment(id int64, valorPago float64, dataRealizacao time.Time, formaPagamentoId int64, lancarDiferenca bool) error {
