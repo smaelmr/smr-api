@@ -59,14 +59,14 @@ func (r *TripRepository) GetByDateRange(startDate, endDate time.Time) ([]entitie
 	return records, nil
 }
 
-func (r *TripRepository) Add(trip entities.Trip) error {
+func (r *TripRepository) Add(trip entities.Trip) (int64, error) {
 	query :=
 		`INSERT INTO frete 
 			(cavalo_placa, cliente_id, origem_id, destino_final_id, 
 			motorista_id, data_carregamento, data_entrega, numero_documento, 
 			valor_agenciamento, valor_frete, valor_pedagio, observacoes)
 		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
-	_, err := r.conn.Exec(query,
+	result, err := r.conn.Exec(query,
 		trip.CavaloPlaca,
 		trip.ClienteId,
 		trip.OrigemId,
@@ -79,7 +79,16 @@ func (r *TripRepository) Add(trip entities.Trip) error {
 		trip.ValorFrete,
 		trip.ValorPedagio,
 		trip.Observacoes)
-	return err
+	if err != nil {
+		return 0, err
+	}
+
+	id, err := result.LastInsertId()
+	if err != nil {
+		return 0, err
+	}
+
+	return id, nil
 }
 
 func (r *TripRepository) GetTripRecord() (*entities.Trip, error) {

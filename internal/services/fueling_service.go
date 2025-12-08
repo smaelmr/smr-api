@@ -185,8 +185,37 @@ func (c *FuelingService) isValidCNPJ(cnpj string) bool {
 }
 
 func (s *FuelingService) Add(dieselAdd *entities.Fueling) error {
+	// Adiciona o abastecimento e obtém o ID
+	fuelingId, err := s.RepoManager.Fueling().Add(*dieselAdd)
+	if err != nil {
+		return err
+	}
 
-	return s.RepoManager.Fueling().Add(*dieselAdd)
+	// Cria automaticamente um lançamento a pagar
+	origemId := fuelingId
+	finance := entities.Finance{
+		PessoaId:        dieselAdd.PostoId,
+		CategoriaId:     2, // categoria de "Abastecimento"
+		OrigemId:        &origemId,
+		Origem:          "ABASTECIMENTO",
+		Valor:           dieselAdd.ValorTotal,
+		ValorParcela:    dieselAdd.ValorTotal,
+		NumeroParcela:   1,
+		TotalParcelas:   1,
+		NumeroDocumento: dieselAdd.NumeroDocumento,
+		DataCompetencia: dieselAdd.Data,
+		DataVencimento:  dieselAdd.Data,
+		Observacao:      "Lançamento automático de abastecimento",
+	}
+
+	err = s.RepoManager.Finance().Add(finance)
+	if err != nil {
+		// Se falhar ao criar o lançamento, não impede a criação do abastecimento
+		// mas registra o erro
+		// TODO: Implementar log de erro
+	}
+
+	return nil
 }
 
 func (s *FuelingService) GetAll() ([]entities.Fueling, error) {

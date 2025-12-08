@@ -18,7 +18,7 @@ func newFuelingRepository(conn *sql.DB) *FuelingRepository {
 	}
 }
 
-func (r *FuelingRepository) Add(record entities.Fueling) error {
+func (r *FuelingRepository) Add(record entities.Fueling) (int64, error) {
 	query :=
 		`INSERT INTO abastecimento
 		(veiculo_id, posto_id, data_abastecimento, tipo_combustivel,
@@ -38,16 +38,15 @@ func (r *FuelingRepository) Add(record entities.Fueling) error {
 		record.Cheio)
 
 	if err != nil {
-		return err
+		return 0, err
 	}
 
 	id, err := result.LastInsertId()
 	if err != nil {
-		return err
+		return 0, err
 	}
 
-	record.Id = id
-	return nil
+	return id, nil
 }
 
 func (r *FuelingRepository) GetAll() ([]entities.Fueling, error) {

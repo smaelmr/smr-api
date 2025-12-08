@@ -20,7 +20,7 @@ type RepoManager interface {
 }
 
 type FuelingRepository interface {
-	Add(diesel entities.Fueling) error
+	Add(diesel entities.Fueling) (int64, error)
 	GetAll() ([]entities.Fueling, error)
 	Update(diesel entities.Fueling) error
 	Delete(id int64) error
@@ -54,7 +54,7 @@ type PersonRepository interface {
 }
 
 type TripRepository interface {
-	Add(trip entities.Trip) error
+	Add(trip entities.Trip) (int64, error)
 	GetAll() ([]entities.Trip, error)
 	Update(trip entities.Trip) error
 	GetByDateRange(startDate, endDate time.Time) ([]entities.Trip, error)

@@ -19,13 +19,37 @@ func NewTripService(repoManager repository.RepoManager) *TripService {
 }
 
 func (s *TripService) Add(tripAdd *entities.Trip) error {
-
-	/*dataCarregamento, err := ParseStringToTime(tripAdd.DataCarregamento, "02/01/2006")
+	// Adiciona o frete e obtém o ID
+	tripId, err := s.RepoManager.Trip().Add(*tripAdd)
 	if err != nil {
 		return err
-	}*/
+	}
 
-	return s.RepoManager.Trip().Add(*tripAdd)
+	// Cria automaticamente um lançamento a receber
+	origemId := tripId
+	finance := entities.Finance{
+		PessoaId:        tripAdd.ClienteId,
+		CategoriaId:     3, // categoria de "Frete"
+		OrigemId:        &origemId,
+		Origem:          "FRETE",
+		Valor:           float64(tripAdd.ValorFrete),
+		ValorParcela:    float64(tripAdd.ValorFrete),
+		NumeroParcela:   1,
+		TotalParcelas:   1,
+		NumeroDocumento: tripAdd.NumeroDocumento,
+		DataCompetencia: tripAdd.DataCarregamento,
+		DataVencimento:  tripAdd.DataEntrega,
+		Observacao:      "Lançamento automático de frete",
+	}
+
+	err = s.RepoManager.Finance().Add(finance)
+	if err != nil {
+		// Se falhar ao criar o lançamento, não impede a criação do frete
+		// mas registra o erro
+		// TODO: Implementar log de erro
+	}
+
+	return nil
 }
 
 func (s *TripService) GetAll() ([]entities.Trip, error) {
