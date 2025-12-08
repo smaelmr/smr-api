@@ -8,7 +8,6 @@ type TripFilterParams struct {
 	DataInicial    *string `json:"dataInicial,omitempty"`
 	DataFinal      *string `json:"dataFinal,omitempty"`
 	CavaloPlaca    *string `json:"cavaloPlaca,omitempty"`
-	CarretaPlaca   *string `json:"carretaPlaca,omitempty"`
 	OrigemId       *string `json:"origemId,omitempty"`
 	DestinoFinalId *string `json:"destinoFinalId,omitempty"`
 }
@@ -50,10 +49,6 @@ func (p *TripFilterParams) ToFilter() (*TripFilter, error) {
 
 	if p.CavaloPlaca != nil && *p.CavaloPlaca != "" {
 		filter.CavaloPlaca = p.CavaloPlaca
-	}
-
-	if p.CarretaPlaca != nil && *p.CarretaPlaca != "" {
-		filter.CarretaPlaca = p.CarretaPlaca
 	}
 
 	if p.DataInicial != nil && *p.DataInicial != "" {

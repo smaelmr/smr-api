@@ -65,7 +65,7 @@ dataRealizacao == null AND dataVencimento >= hoje
   "valorParcela": 1000.00,
   "dataVencimento": "2025-02-15T00:00:00Z",
   "dataRealizacao": null,
-  "status": "Em Aberto"
+  "status": "EM_ABERTO"
 }
 ```
 

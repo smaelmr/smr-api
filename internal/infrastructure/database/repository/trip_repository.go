@@ -20,8 +20,7 @@ func newTripRepository(conn *sql.DB) *TripRepository {
 
 func (r *TripRepository) GetByDateRange(startDate, endDate time.Time) ([]entities.Trip, error) {
 	query := `SELECT 
-		f.id, f.carreta_placa, f.cavalo_placa, f.cliente_id, 
-		f.origem_id, f.destino_final_id, f.forma_pagamento_id, 
+		f.id, f.cavalo_placa, f.cliente_id, f.origem_id, f.destino_final_id, 
 		f.motorista_id, f.data_carregamento, f.data_entrega, 
 		f.numero_documento, f.valor_agenciamento, f.valor_frete, 
 		f.valor_pedagio, f.observacoes
@@ -40,12 +39,10 @@ func (r *TripRepository) GetByDateRange(startDate, endDate time.Time) ([]entitie
 		var record entities.Trip
 		if err := rows.Scan(
 			&record.Id,
-			&record.CarretaPlaca,
 			&record.CavaloPlaca,
 			&record.ClienteId,
 			&record.OrigemId,
-			&record.DestinoFinalId,
-			&record.FormaPagamentoId,
+			&record.DestinoId,
 			&record.MotoristaId,
 			&record.DataCarregamento,
 			&record.DataEntrega,
@@ -65,19 +62,15 @@ func (r *TripRepository) GetByDateRange(startDate, endDate time.Time) ([]entitie
 func (r *TripRepository) Add(trip entities.Trip) error {
 	query :=
 		`INSERT INTO frete 
-			(carreta_placa, cavalo_placa, cliente_id, origem_id, 
-            destino_final_id, forma_pagamento_id, motorista_id, 
-            data_carregamento, data_entrega, numero_documento, 
-            valor_agenciamento, valor_frete, valor_pedagio, observacoes)
-		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
-
+			(cavalo_placa, cliente_id, origem_id, destino_final_id, 
+			motorista_id, data_carregamento, data_entrega, numero_documento, 
+			valor_agenciamento, valor_frete, valor_pedagio, observacoes)
+		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
 	_, err := r.conn.Exec(query,
-		trip.CarretaPlaca,
 		trip.CavaloPlaca,
 		trip.ClienteId,
 		trip.OrigemId,
-		trip.DestinoFinalId,
-		trip.FormaPagamentoId,
+		trip.DestinoId,
 		trip.MotoristaId,
 		trip.DataCarregamento,
 		trip.DataEntrega,
@@ -91,7 +84,7 @@ func (r *TripRepository) Add(trip entities.Trip) error {
 
 func (r *TripRepository) GetTripRecord() (*entities.Trip, error) {
 	query :=
-		`SELECT id, carreta_placa, cavalo_placa, cliente_id, origem_id,
+		`SELECT id, cavalo_placa, cliente_id, origem_id,
 			 destino_final_id, forma_pagamento_id, motorista_id,
 			 data_carregamento, data_entrega, numero_documento,
 			 valor_agenciamento, valor_frete, valor_pedagio, observacoes
@@ -102,12 +95,10 @@ func (r *TripRepository) GetTripRecord() (*entities.Trip, error) {
 	var record entities.Trip
 	err := row.Scan(
 		&record.Id,
-		&record.CarretaPlaca,
 		&record.CavaloPlaca,
 		&record.ClienteId,
 		&record.OrigemId,
-		&record.DestinoFinalId,
-		&record.FormaPagamentoId,
+		&record.DestinoId,
 		&record.MotoristaId,
 		&record.DataCarregamento,
 		&record.DataEntrega,
@@ -125,19 +116,10 @@ func (r *TripRepository) GetTripRecord() (*entities.Trip, error) {
 
 func (r *TripRepository) GetAll() ([]entities.Trip, error) {
 	query := `SELECT 
-				f.id, f.carreta_placa, f.cavalo_placa, f.cliente_id, pc.nome AS cliente_nome,
-				f.origem_id, o.nome AS origem_nome, f.destino_final_id, d.nome AS destino_final_nome, 
-				f.forma_pagamento_id, fp.descricao AS forma_pagamento_descricao, f.motorista_id, 
-				pm.nome AS motorista_nome, f.data_carregamento, f.data_entrega, f.numero_documento, 
+				f.id, f.cavalo_placa, f.cliente_id, origem_id, f.destino_final_id, 
+				f.motorista_id, f.data_carregamento, f.data_entrega, f.numero_documento, 
 				f.valor_agenciamento, f.valor_frete, f.valor_pedagio, f.observacoes
-				FROM frete f
-				INNER JOIN cliente c ON f.cliente_id = c.id
-				INNER JOIN pessoa pc ON pc.id = c.pessoa_id
-				INNER JOIN motorista m ON m.id = f.motorista_id
-				INNER JOIN pessoa pm ON pm.id = m.pessoa_id
-				INNER JOIN cidade o ON f.origem_id = o.id
-				INNER JOIN cidade d ON f.destino_final_id = d.id
-				INNER JOIN forma_pagamento fp ON f.forma_pagamento_id = fp.id`
+				FROM frete f`
 
 	rows, err := r.conn.Query(query)
 	if err != nil {
@@ -150,18 +132,11 @@ func (r *TripRepository) GetAll() ([]entities.Trip, error) {
 		var record entities.Trip
 		if err := rows.Scan(
 			&record.Id,
-			&record.CarretaPlaca,
 			&record.CavaloPlaca,
 			&record.ClienteId,
-			&record.ClienteNome,
 			&record.OrigemId,
-			&record.OrigemNome,
-			&record.DestinoFinalId,
-			&record.DestinoFinalNome,
-			&record.FormaPagamentoId,
-			&record.FormaPagamentoDescricao,
+			&record.DestinoId,
 			&record.MotoristaId,
-			&record.MotoristaNome,
 			&record.DataCarregamento,
 			&record.DataEntrega,
 			&record.NumeroDocumento,
@@ -179,12 +154,10 @@ func (r *TripRepository) GetAll() ([]entities.Trip, error) {
 
 func (r *TripRepository) Update(trip entities.Trip) error {
 	query := `UPDATE frete SET 
-		carreta_placa = ?, 
-		cavalo_placa = ?, 
+		valo_placa = ?, 
 		cliente_id = ?, 
 		origem_id = ?,
 		destino_final_id = ?, 
-		forma_pagamento_id = ?, 
 		motorista_id = ?,
 		data_carregamento = ?, 
 		data_entrega = ?, 
@@ -196,12 +169,10 @@ func (r *TripRepository) Update(trip entities.Trip) error {
 		WHERE id = ?`
 
 	_, err := r.conn.Exec(query,
-		trip.CarretaPlaca,
 		trip.CavaloPlaca,
 		trip.ClienteId,
 		trip.OrigemId,
-		trip.DestinoFinalId,
-		trip.FormaPagamentoId,
+		trip.DestinoId,
 		trip.MotoristaId,
 		trip.DataCarregamento,
 		trip.DataEntrega,
@@ -216,21 +187,10 @@ func (r *TripRepository) Update(trip entities.Trip) error {
 }
 
 func (r *TripRepository) Filter(params filter.TripFilter) ([]entities.Trip, error) {
-	query := `SELECT 
-		f.id, f.carreta_placa, f.cavalo_placa, f.cliente_id, pc.nome AS cliente_nome,
-		f.origem_id, o.nome AS origem_nome, f.destino_final_id, d.nome AS destino_final_nome, 
-		f.forma_pagamento_id, fp.descricao AS forma_pagamento_descricao, f.motorista_id, 
-		pm.nome AS motorista_nome, f.data_carregamento, f.data_entrega, f.numero_documento, 
-		f.valor_agenciamento, f.valor_frete, f.valor_pedagio, f.observacoes
-		FROM frete f
-		INNER JOIN cliente c ON f.cliente_id = c.id
-		INNER JOIN pessoa pc ON pc.id = c.pessoa_id
-		INNER JOIN motorista m ON m.id = f.motorista_id
-		INNER JOIN pessoa pm ON pm.id = m.pessoa_id
-		INNER JOIN cidade o ON f.origem_id = o.id
-		INNER JOIN cidade d ON f.destino_final_id = d.id
-		INNER JOIN forma_pagamento fp ON f.forma_pagamento_id = fp.id
-		WHERE 1=1`
+	query := `f.id, f.cavalo_placa, f.cliente_id, origem_id, f.destino_final_id, 
+				f.motorista_id, f.data_carregamento, f.data_entrega, f.numero_documento, 
+				f.valor_agenciamento, f.valor_frete, f.valor_pedagio, f.observacoes
+				FROM frete f WHERE 1=1`
 
 	args := []interface{}{}
 
@@ -270,18 +230,10 @@ func (r *TripRepository) Filter(params filter.TripFilter) ([]entities.Trip, erro
 		var record entities.Trip
 		if err := rows.Scan(
 			&record.Id,
-			&record.CarretaPlaca,
 			&record.CavaloPlaca,
 			&record.ClienteId,
-			&record.ClienteNome,
 			&record.OrigemId,
-			&record.OrigemNome,
-			&record.DestinoFinalId,
-			&record.DestinoFinalNome,
-			&record.FormaPagamentoId,
-			&record.FormaPagamentoDescricao,
 			&record.MotoristaId,
-			&record.MotoristaNome,
 			&record.DataCarregamento,
 			&record.DataEntrega,
 			&record.NumeroDocumento,
@@ -295,4 +247,10 @@ func (r *TripRepository) Filter(params filter.TripFilter) ([]entities.Trip, erro
 	}
 
 	return records, nil
+}
+
+func (r *TripRepository) Delete(id int64) error {
+	query := "DELETE FROM frete WHERE id = ?"
+	_, err := r.conn.Exec(query, id)
+	return err
 }

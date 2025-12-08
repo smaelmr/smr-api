@@ -8,7 +8,6 @@ type TripFilter struct {
 	DataInicial    *time.Time `json:"dataInicial,omitempty"`
 	DataFinal      *time.Time `json:"dataFinal,omitempty"`
 	CavaloPlaca    *string    `json:"cavaloPlaca,omitempty"`
-	CarretaPlaca   *string    `json:"carretaPlaca,omitempty"`
 	OrigemId       *int64     `json:"origemId,omitempty"`
 	DestinoFinalId *int64     `json:"destinoFinalId,omitempty"`
 }

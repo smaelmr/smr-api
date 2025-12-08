@@ -10,8 +10,8 @@ type Finance struct {
 	PessoaId         int64      `json:"pessoaId"`
 	CategoriaId      int64      `json:"categoriaId"`
 	FormaPagamentoId *int64     `json:"formaPagamentoId"` // ID da forma de pagamento (null se não pago)
-	OrigemId         *int64     `json:"OrigemId"`         // ID do lançamento pai, pode ser manutenção, abastecimento ou frete. Origem manual será null
-	Origem           string     `json:"origem"`           // Descrição do tipo de lançamento: manutenção, abastecimento, frete ou manual
+	OrigemId         *int64     `json:"OrigemId"`         // ID do lançamento pai, pode ser MANUTENCAO, ABASTECIMENTO ou FRETE. Origem manual será null
+	Origem           string     `json:"origem"`           // Descrição do tipo de lançamento: MANUTENCAO, ABASTECIMENTO, FRETE ou MANUAL
 	Valor            float64    `json:"valor"`
 	ValorPago        *float64   `json:"valorPago"` // Valor efetivamente pago (null se não pago)
 	ValorParcela     float64    `json:"valorParcela"`
@@ -30,7 +30,11 @@ type Finance struct {
 func (f *Finance) GetStatus() string {
 	// Se tem data de realização, está pago/recebido
 	if f.DataRealizacao != nil {
-		return "Pago/Recebido"
+		// Se a origem é FRETE, retorna RECEBIDO, senão PAGO
+		if f.Origem == "FRETE" {
+			return "RECEBIDO"
+		}
+		return "PAGO"
 	}
 
 	// Se não tem data de realização, verificar vencimento
@@ -42,11 +46,11 @@ func (f *Finance) GetStatus() string {
 
 	// Se já passou do vencimento
 	if hojeNormalizado.After(vencimentoNormalizado) {
-		return "Em Atraso"
+		return "EM_ATRASO"
 	}
 
 	// Caso contrário, está em aberto dentro do prazo
-	return "Em Aberto"
+	return "EM_ABERTO"
 }
 
 // MarshalJSON customiza a serialização JSON para incluir o campo Status dinamicamente

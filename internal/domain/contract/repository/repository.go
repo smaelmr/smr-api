@@ -59,6 +59,7 @@ type TripRepository interface {
 	Update(trip entities.Trip) error
 	GetByDateRange(startDate, endDate time.Time) ([]entities.Trip, error)
 	Filter(params filter.TripFilter) ([]entities.Trip, error)
+	Delete(id int64) error
 }
 
 type FinanceRepository interface {

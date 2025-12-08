@@ -63,3 +63,7 @@ func (s *TripService) Filter(clienteId, motoristaId, dataInicial, dataFinal, cav
 
 	return records, nil
 }
+
+func (s *TripService) Delete(id int64) error {
+	return s.RepoManager.Trip().Delete(id)
+}

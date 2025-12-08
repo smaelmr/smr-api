@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/go-chi/chi/v5"
 	"github.com/smaelmr/finance-api/internal/domain/entities"
 	"github.com/smaelmr/finance-api/internal/services"
 )
@@ -93,5 +94,21 @@ func (c *TripController) HandleTrip(w http.ResponseWriter, r *http.Request) {
 
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(records)
+	case "DELETE":
+		idParam := chi.URLParam(r, "id")
+		id, err := strconv.ParseInt(idParam, 10, 64)
+		if err != nil {
+			w.WriteHeader(http.StatusBadRequest)
+			json.NewEncoder(w).Encode(map[string]string{"error": "Invalid ID"})
+			return
+		}
+
+		err = c.tripService.Delete(id)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		w.WriteHeader(http.StatusOK)
 	}
 }
