@@ -184,6 +184,66 @@ func (r *PersonRepository) GetClients() (retVal []entities.Person, err error) {
 	return retVal, nil
 }
 
+func (r *PersonRepository) GetClientsById(id int64) (retVal entities.Person, err error) {
+	query := `SELECT m.id, m.pessoa_id, p.nome, p.cpf_cnpj, p.nome_contato, p.telefone, p.cep, 
+		p.cidade, p.estado, p.rua, p.numero, p.bairro 
+		FROM pessoa p 
+		INNER JOIN cliente m ON p.id = m.pessoa_id 
+		WHERE m.id = ?`
+
+	var document, contact, phone, cep, city, state, street, number, neighborhood sql.NullString
+
+	row := r.conn.QueryRow(query, id)
+	err = row.Scan(
+		&retVal.Id,
+		&retVal.PessoaId,
+		&retVal.Name,
+		&document,
+		&contact,
+		&phone,
+		&cep,
+		&city,
+		&state,
+		&street,
+		&number,
+		&neighborhood,
+	)
+	if err != nil {
+		return entities.Person{}, err
+	}
+
+	// Converter os campos NULL para string vazia
+	if document.Valid {
+		retVal.Document = document.String
+	}
+	if contact.Valid {
+		retVal.Contact = contact.String
+	}
+	if phone.Valid {
+		retVal.PhoneNumber = phone.String
+	}
+	if cep.Valid {
+		retVal.Cep = cep.String
+	}
+	if city.Valid {
+		retVal.City = city.String
+	}
+	if state.Valid {
+		retVal.State = state.String
+	}
+	if street.Valid {
+		retVal.Street = street.String
+	}
+	if number.Valid {
+		retVal.StreetNumber = number.String
+	}
+	if neighborhood.Valid {
+		retVal.Neighborhood = neighborhood.String
+	}
+
+	return retVal, nil
+}
+
 func (r *PersonRepository) GetSuppliers() (retVal []entities.Person, err error) {
 	query := `SELECT f.id, f.pessoa_id, p.nome, p.cpf_cnpj, p.nome_contato, p.telefone, p.cep, 
 		p.cidade, p.estado, p.rua, p.numero, p.bairro 
@@ -412,6 +472,66 @@ func (r *PersonRepository) GetGasStations() (retVal []entities.Person, err error
 		}
 
 		retVal = append(retVal, gasStation)
+	}
+
+	return retVal, nil
+}
+
+func (r *PersonRepository) GetGasStationsById(id int64) (retVal entities.Person, err error) {
+	query := `SELECT m.id, m.pessoa_id, p.nome, p.cpf_cnpj, p.nome_contato, p.telefone, p.cep, 
+		p.cidade, p.estado, p.rua, p.numero, p.bairro 
+		FROM pessoa p 
+		INNER JOIN posto m ON p.id = m.pessoa_id 
+		WHERE m.id = ?`
+
+	var document, contact, phone, cep, city, state, street, number, neighborhood sql.NullString
+
+	row := r.conn.QueryRow(query, id)
+	err = row.Scan(
+		&retVal.Id,
+		&retVal.PessoaId,
+		&retVal.Name,
+		&document,
+		&contact,
+		&phone,
+		&cep,
+		&city,
+		&state,
+		&street,
+		&number,
+		&neighborhood,
+	)
+	if err != nil {
+		return entities.Person{}, err
+	}
+
+	// Converter os campos NULL para string vazia
+	if document.Valid {
+		retVal.Document = document.String
+	}
+	if contact.Valid {
+		retVal.Contact = contact.String
+	}
+	if phone.Valid {
+		retVal.PhoneNumber = phone.String
+	}
+	if cep.Valid {
+		retVal.Cep = cep.String
+	}
+	if city.Valid {
+		retVal.City = city.String
+	}
+	if state.Valid {
+		retVal.State = state.String
+	}
+	if street.Valid {
+		retVal.Street = street.String
+	}
+	if number.Valid {
+		retVal.StreetNumber = number.String
+	}
+	if neighborhood.Valid {
+		retVal.Neighborhood = neighborhood.String
 	}
 
 	return retVal, nil

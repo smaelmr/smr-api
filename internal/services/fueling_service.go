@@ -191,10 +191,15 @@ func (s *FuelingService) Add(dieselAdd *entities.Fueling) error {
 		return err
 	}
 
+	pessoa, err := s.RepoManager.Person().GetGasStationsById(dieselAdd.PostoId)
+	if err != nil {
+		return err
+	}
+
 	// Cria automaticamente um lançamento a pagar
 	origemId := fuelingId
 	finance := entities.Finance{
-		PessoaId:        dieselAdd.PostoId,
+		PessoaId:        pessoa.PessoaId,
 		CategoriaId:     2, // categoria de "Abastecimento"
 		OrigemId:        &origemId,
 		Origem:          "ABASTECIMENTO",

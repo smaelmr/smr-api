@@ -40,8 +40,10 @@ type PersonRepository interface {
 	AddGasStation(person entities.Person) error
 	GetSuppliers() ([]entities.Person, error)
 	GetClients() ([]entities.Person, error)
+	GetClientsById(id int64) (entities.Person, error)
 	GetDrivers() ([]entities.Driver, error)
 	GetGasStations() ([]entities.Person, error)
+	GetGasStationsById(id int64) (entities.Person, error)
 	UpdateGasStation(person entities.Person) error
 	DeleteGasStation(id int64) error
 	GetGasStationByCnpj(string) (entities.Person, error)

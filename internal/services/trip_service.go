@@ -25,10 +25,15 @@ func (s *TripService) Add(tripAdd *entities.Trip) error {
 		return err
 	}
 
+	pessoa, err := s.RepoManager.Person().GetClientsById(tripAdd.ClienteId)
+	if err != nil {
+		return err
+	}
+
 	// Cria automaticamente um lançamento a receber
 	origemId := tripId
 	finance := entities.Finance{
-		PessoaId:        tripAdd.ClienteId,
+		PessoaId:        pessoa.PessoaId,
 		CategoriaId:     3, // categoria de "Frete"
 		OrigemId:        &origemId,
 		Origem:          "FRETE",
