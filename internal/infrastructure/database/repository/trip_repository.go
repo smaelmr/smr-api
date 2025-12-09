@@ -20,7 +20,7 @@ func newTripRepository(conn *sql.DB) *TripRepository {
 
 func (r *TripRepository) GetByDateRange(startDate, endDate time.Time) ([]entities.Trip, error) {
 	query := `SELECT 
-		f.id, f.cavalo_placa, f.cliente_id, f.origem_id, f.destino_final_id, 
+		f.id, f.veiculo_id, f.cliente_id, f.origem_id, f.destino_final_id, 
 		f.motorista_id, f.data_carregamento, f.data_entrega, 
 		f.numero_documento, f.valor_agenciamento, f.valor_frete, 
 		f.valor_pedagio, f.observacoes
@@ -39,18 +39,18 @@ func (r *TripRepository) GetByDateRange(startDate, endDate time.Time) ([]entitie
 		var record entities.Trip
 		if err := rows.Scan(
 			&record.Id,
-			&record.CavaloPlaca,
+			&record.VeiculoId,
 			&record.ClienteId,
 			&record.OrigemId,
 			&record.DestinoId,
 			&record.MotoristaId,
-			&record.DataCarregamento,
+			&record.DataColeta,
 			&record.DataEntrega,
 			&record.NumeroDocumento,
 			&record.ValorAgenciamento,
 			&record.ValorFrete,
 			&record.ValorPedagio,
-			&record.Observacoes); err != nil {
+			&record.Observacao); err != nil {
 			return nil, err
 		}
 		records = append(records, record)
@@ -62,23 +62,23 @@ func (r *TripRepository) GetByDateRange(startDate, endDate time.Time) ([]entitie
 func (r *TripRepository) Add(trip entities.Trip) (int64, error) {
 	query :=
 		`INSERT INTO frete 
-			(cavalo_placa, cliente_id, origem_id, destino_final_id, 
+			(veiculo_id, cliente_id, origem_id, destino_final_id, 
 			motorista_id, data_carregamento, data_entrega, numero_documento, 
 			valor_agenciamento, valor_frete, valor_pedagio, observacoes)
 		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
 	result, err := r.conn.Exec(query,
-		trip.CavaloPlaca,
+		trip.VeiculoId,
 		trip.ClienteId,
 		trip.OrigemId,
 		trip.DestinoId,
 		trip.MotoristaId,
-		trip.DataCarregamento,
+		trip.DataColeta,
 		trip.DataEntrega,
 		trip.NumeroDocumento,
 		trip.ValorAgenciamento,
 		trip.ValorFrete,
 		trip.ValorPedagio,
-		trip.Observacoes)
+		trip.Observacao)
 	if err != nil {
 		return 0, err
 	}
@@ -93,7 +93,7 @@ func (r *TripRepository) Add(trip entities.Trip) (int64, error) {
 
 func (r *TripRepository) GetTripRecord() (*entities.Trip, error) {
 	query :=
-		`SELECT id, cavalo_placa, cliente_id, origem_id,
+		`SELECT id, veiculo_id, cliente_id, origem_id,
 			 destino_final_id, forma_pagamento_id, motorista_id,
 			 data_carregamento, data_entrega, numero_documento,
 			 valor_agenciamento, valor_frete, valor_pedagio, observacoes
@@ -104,18 +104,18 @@ func (r *TripRepository) GetTripRecord() (*entities.Trip, error) {
 	var record entities.Trip
 	err := row.Scan(
 		&record.Id,
-		&record.CavaloPlaca,
+		&record.VeiculoId,
 		&record.ClienteId,
 		&record.OrigemId,
 		&record.DestinoId,
 		&record.MotoristaId,
-		&record.DataCarregamento,
+		&record.DataColeta,
 		&record.DataEntrega,
 		&record.NumeroDocumento,
 		&record.ValorAgenciamento,
 		&record.ValorFrete,
 		&record.ValorPedagio,
-		&record.Observacoes)
+		&record.Observacao)
 	if err != nil {
 		return nil, err
 	}
@@ -125,7 +125,7 @@ func (r *TripRepository) GetTripRecord() (*entities.Trip, error) {
 
 func (r *TripRepository) GetAll() ([]entities.Trip, error) {
 	query := `SELECT 
-				f.id, f.cavalo_placa, f.cliente_id, origem_id, f.destino_final_id, 
+				f.id, f.veiculo_id, f.cliente_id, origem_id, f.destino_final_id, 
 				f.motorista_id, f.data_carregamento, f.data_entrega, f.numero_documento, 
 				f.valor_agenciamento, f.valor_frete, f.valor_pedagio, f.observacoes
 				FROM frete f`
@@ -141,18 +141,18 @@ func (r *TripRepository) GetAll() ([]entities.Trip, error) {
 		var record entities.Trip
 		if err := rows.Scan(
 			&record.Id,
-			&record.CavaloPlaca,
+			&record.VeiculoId,
 			&record.ClienteId,
 			&record.OrigemId,
 			&record.DestinoId,
 			&record.MotoristaId,
-			&record.DataCarregamento,
+			&record.DataColeta,
 			&record.DataEntrega,
 			&record.NumeroDocumento,
 			&record.ValorAgenciamento,
 			&record.ValorFrete,
 			&record.ValorPedagio,
-			&record.Observacoes); err != nil {
+			&record.Observacao); err != nil {
 			return nil, err
 		}
 		records = append(records, record)
@@ -163,7 +163,7 @@ func (r *TripRepository) GetAll() ([]entities.Trip, error) {
 
 func (r *TripRepository) Update(trip entities.Trip) error {
 	query := `UPDATE frete SET 
-		valo_placa = ?, 
+		veiculo_id = ?, 
 		cliente_id = ?, 
 		origem_id = ?,
 		destino_final_id = ?, 
@@ -178,25 +178,25 @@ func (r *TripRepository) Update(trip entities.Trip) error {
 		WHERE id = ?`
 
 	_, err := r.conn.Exec(query,
-		trip.CavaloPlaca,
+		trip.VeiculoId,
 		trip.ClienteId,
 		trip.OrigemId,
 		trip.DestinoId,
 		trip.MotoristaId,
-		trip.DataCarregamento,
+		trip.DataColeta,
 		trip.DataEntrega,
 		trip.NumeroDocumento,
 		trip.ValorAgenciamento,
 		trip.ValorFrete,
 		trip.ValorPedagio,
-		trip.Observacoes,
+		trip.Observacao,
 		trip.Id)
 
 	return err
 }
 
 func (r *TripRepository) Filter(params filter.TripFilter) ([]entities.Trip, error) {
-	query := `f.id, f.cavalo_placa, f.cliente_id, origem_id, f.destino_final_id, 
+	query := `f.id, f.veiculo_id, f.cliente_id, origem_id, f.destino_final_id, 
 				f.motorista_id, f.data_carregamento, f.data_entrega, f.numero_documento, 
 				f.valor_agenciamento, f.valor_frete, f.valor_pedagio, f.observacoes
 				FROM frete f WHERE 1=1`
@@ -223,9 +223,9 @@ func (r *TripRepository) Filter(params filter.TripFilter) ([]entities.Trip, erro
 		args = append(args, *params.DataFinal)
 	}
 
-	if params.CavaloPlaca != nil {
-		query += " AND f.cavalo_placa = ?"
-		args = append(args, *params.CavaloPlaca)
+	if params.VeiculoId != nil {
+		query += " AND f.veiculo_id = ?"
+		args = append(args, *params.VeiculoId)
 	}
 
 	rows, err := r.conn.Query(query, args...)
@@ -239,17 +239,17 @@ func (r *TripRepository) Filter(params filter.TripFilter) ([]entities.Trip, erro
 		var record entities.Trip
 		if err := rows.Scan(
 			&record.Id,
-			&record.CavaloPlaca,
+			&record.VeiculoId,
 			&record.ClienteId,
 			&record.OrigemId,
 			&record.MotoristaId,
-			&record.DataCarregamento,
+			&record.DataColeta,
 			&record.DataEntrega,
 			&record.NumeroDocumento,
 			&record.ValorAgenciamento,
 			&record.ValorFrete,
 			&record.ValorPedagio,
-			&record.Observacoes); err != nil {
+			&record.Observacao); err != nil {
 			return nil, err
 		}
 		records = append(records, record)

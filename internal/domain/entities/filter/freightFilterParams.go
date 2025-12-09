@@ -7,7 +7,7 @@ type TripFilterParams struct {
 	MotoristaId    *string `json:"motoristaId,omitempty"`
 	DataInicial    *string `json:"dataInicial,omitempty"`
 	DataFinal      *string `json:"dataFinal,omitempty"`
-	CavaloPlaca    *string `json:"cavaloPlaca,omitempty"`
+	VeiculoId      *string `json:"veiculoId,omitempty"`
 	OrigemId       *string `json:"origemId,omitempty"`
 	DestinoFinalId *string `json:"destinoFinalId,omitempty"`
 }
@@ -47,8 +47,12 @@ func (p *TripFilterParams) ToFilter() (*TripFilter, error) {
 		filter.DestinoFinalId = &id
 	}
 
-	if p.CavaloPlaca != nil && *p.CavaloPlaca != "" {
-		filter.CavaloPlaca = p.CavaloPlaca
+	if p.VeiculoId != nil && *p.VeiculoId != "" {
+		id, err := ParseStringToInt64(*p.VeiculoId)
+		if err != nil {
+			return nil, err
+		}
+		filter.VeiculoId = &id
 	}
 
 	if p.DataInicial != nil && *p.DataInicial != "" {
@@ -83,12 +87,12 @@ func (p *TripFilterParams) ToFilter() (*TripFilter, error) {
 	return filter, nil
 }
 
-func NewTripFilterParams(clienteId, motoristaId, dataInicial, dataFinal, cavaloPlaca *string) *TripFilterParams {
+func NewTripFilterParams(clienteId, motoristaId, dataInicial, dataFinal, veiculoId *string) *TripFilterParams {
 	return &TripFilterParams{
 		ClienteId:   clienteId,
 		MotoristaId: motoristaId,
 		DataInicial: dataInicial,
 		DataFinal:   dataFinal,
-		CavaloPlaca: cavaloPlaca,
+		VeiculoId:   veiculoId,
 	}
 }

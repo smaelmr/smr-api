@@ -37,10 +37,7 @@ func (s *PersonService) GetClients() ([]entities.Person, error) {
 		return nil, err
 	}
 
-	var customerList []entities.Person
-	customerList = append(customerList, records...)
-
-	return customerList, nil
+	return records, nil
 }
 
 func (s *PersonService) GetSuppliers() ([]entities.Person, error) {

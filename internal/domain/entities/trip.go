@@ -4,16 +4,16 @@ import "time"
 
 type Trip struct {
 	Id                int64     `json:"id"`
-	CavaloPlaca       string    `json:"cavaloPlaca"`
+	VeiculoId         int64     `json:"veiculoId"`
 	ClienteId         int64     `json:"clienteId"`
 	OrigemId          int64     `json:"origemId"`
 	DestinoId         int64     `json:"destinoId"`
 	MotoristaId       int64     `json:"motoristaId"`
-	DataCarregamento  time.Time `json:"dataCarregamento"`
+	DataColeta        time.Time `json:"dataColeta"`
 	DataEntrega       time.Time `json:"dataEntrega"`
 	NumeroDocumento   string    `json:"numeroDocumento"`
-	ValorAgenciamento int64     `json:"valorAgenciamento"`
-	ValorFrete        int64     `json:"valorFrete"`
-	ValorPedagio      int64     `json:"valorPedagio"`
-	Observacoes       string    `json:"observacoes"`
+	ValorAgenciamento float64   `json:"valorAgenciamento"`
+	ValorFrete        float64   `json:"valorFrete"`
+	ValorPedagio      float64   `json:"valorPedagio"`
+	Observacao        string    `json:"observacao"`
 }

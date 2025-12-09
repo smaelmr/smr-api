@@ -37,8 +37,8 @@ func (s *TripService) Add(tripAdd *entities.Trip) error {
 		NumeroParcela:   1,
 		TotalParcelas:   1,
 		NumeroDocumento: tripAdd.NumeroDocumento,
-		DataCompetencia: tripAdd.DataCarregamento,
-		DataVencimento:  tripAdd.DataEntrega,
+		DataCompetencia: tripAdd.DataColeta,
+		DataVencimento:  tripAdd.DataColeta,
 		Observacao:      "Lançamento automático de frete",
 	}
 
