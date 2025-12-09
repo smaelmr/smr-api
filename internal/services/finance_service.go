@@ -122,19 +122,19 @@ func (s *FinanceService) GetPayments(month int, year int) ([]entities.Finance, e
 func (s *FinanceService) Update(financeUpdate *entities.Finance) error {
 	// Validações básicas
 	if financeUpdate.Id <= 0 {
-		return errors.New("invalid id")
+		return errors.New("ID inválido")
 	}
 
 	if financeUpdate.PessoaId <= 0 {
-		return errors.New("pessoaId is required")
+		return errors.New("Pessoa é obrigatória")
 	}
 
 	if financeUpdate.CategoriaId <= 0 {
-		return errors.New("categoriaId is required")
+		return errors.New("Categoria é obrigatória")
 	}
 
-	if financeUpdate.ValorParcela <= 0 && financeUpdate.Valor <= 0 {
-		return errors.New("valor or valorParcela must be greater than zero")
+	if financeUpdate.ValorParcela <= 0 {
+		return errors.New("Valor parcela deve ser maior que zero")
 	}
 
 	// Verificar se o registro existe
@@ -144,7 +144,7 @@ func (s *FinanceService) Update(financeUpdate *entities.Finance) error {
 	}
 
 	if existing == nil {
-		return errors.New("finance record not found")
+		return errors.New("Registro não encontrado")
 	}
 
 	return s.RepoManager.Finance().Update(*financeUpdate)

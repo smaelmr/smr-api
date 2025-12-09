@@ -241,6 +241,7 @@ func (r *FinanceRepository) Update(record entities.Finance) error {
 	query := `UPDATE financeiro SET 
 		pessoa_id = ?,
 		valor_original = ?,
+		numero_parcela = ?,
 		numero_documento = ?,
 		data_competencia = ?,
 		data_vencimento = ?,
@@ -256,6 +257,7 @@ func (r *FinanceRepository) Update(record entities.Finance) error {
 	result, err := r.conn.Exec(query,
 		record.PessoaId,
 		record.ValorParcela,
+		record.NumeroParcela,
 		record.NumeroDocumento,
 		record.DataCompetencia,
 		record.DataVencimento,
