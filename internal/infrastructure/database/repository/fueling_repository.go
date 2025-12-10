@@ -21,9 +21,9 @@ func newFuelingRepository(conn *sql.DB) *FuelingRepository {
 func (r *FuelingRepository) Add(record entities.Fueling) (int64, error) {
 	query :=
 		`INSERT INTO abastecimento
-		(veiculo_id, posto_id, data_abastecimento,
-		litros, valor_unitario, valor_diesel, qtd_arla, valor_arla, numero_documento, km, cheio)
-		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);`
+		(veiculo_id, posto_id, data_abastecimento, litros, valor_diesel, 
+		qtd_arla, valor_arla, numero_documento, km, cheio)
+		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);`
 
 	result, err := r.conn.Exec(query,
 		record.VeiculoId,
@@ -52,7 +52,7 @@ func (r *FuelingRepository) Add(record entities.Fueling) (int64, error) {
 func (r *FuelingRepository) GetAll() ([]entities.Fueling, error) {
 	query := `SELECT 
 				a.id, a.veiculo_id, a.posto_id, a.data_abastecimento, 
-				a.litros, a.valor_unitario, a.valor_diesel, a.qtd_arla, a.valor_arla,
+				a.litros, a.valor_diesel, a.qtd_arla, a.valor_arla,
 				a.Km, a.numero_documento, a.cheio, a.created_at, a.updated_at
 			FROM abastecimento a
 			INNER JOIN posto f ON a.posto_id = f.id
@@ -92,7 +92,7 @@ func (r *FuelingRepository) GetAll() ([]entities.Fueling, error) {
 func (r *FuelingRepository) GetByDateRange(startDate, endDate time.Time) ([]entities.Fueling, error) {
 	query := `SELECT 
         a.id, a.veiculo_id, a.posto_id, a.data_abastecimento, 
-        a.litros, a.valor_unitario, a.valor_diesel, a.qtd_arla, a.valor_arla,
+        a.litros, a.valor_diesel, a.qtd_arla, a.valor_arla,
         a.Km, a.numero_documento, a.cheio, a.created_at, a.updated_at
     FROM abastecimento a
     INNER JOIN posto f ON a.posto_id = f.id
