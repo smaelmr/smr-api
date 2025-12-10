@@ -229,10 +229,7 @@ func (s *FuelingService) GetAll() ([]entities.Fueling, error) {
 		return nil, err
 	}
 
-	var dieselList []entities.Fueling
-	dieselList = append(dieselList, records...)
-
-	return dieselList, nil
+	return records, nil
 }
 
 func (s *FuelingService) Update(dieselUpdate *entities.Fueling) error {
