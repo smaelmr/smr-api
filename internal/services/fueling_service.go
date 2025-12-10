@@ -141,14 +141,14 @@ func (c *FuelingService) convertToFueling(record dto.FuelingImport, fileName str
 
 	veiculo, err := c.vehicleService.GetByPlate(record.Placa)
 	if err != nil {
-		return entities.Fueling{}, fmt.Errorf("Veiculo não encontrado: %s", err)
+		return entities.Fueling{}, fmt.Errorf("veiculo não encontrado: %s", err)
 	}
 
 	fuel := entities.Fueling{
 		Data:            data,
 		NumeroDocumento: record.NumeroCupom,
 		Litros:          record.QuantidadeFloat64(),
-		ValorTotal:      record.ValorTotalFloat64(),
+		ValorDiesel:     record.ValorTotalFloat64(),
 		PostoId:         posto.Id,
 		VeiculoId:       veiculo.Id,
 		Km:              record.HodometroInt64(),
@@ -197,14 +197,16 @@ func (s *FuelingService) Add(dieselAdd *entities.Fueling) error {
 	}
 
 	// Cria automaticamente um lançamento a pagar
+	// Soma valorDiversos ao valorTotal para o lançamento financeiro
+	valorFinanceiro := dieselAdd.ValorDiesel + dieselAdd.ValorArla + dieselAdd.ValorDiversos
 	origemId := fuelingId
 	finance := entities.Finance{
 		PessoaId:        pessoa.PessoaId,
 		CategoriaId:     2, // categoria de "Abastecimento"
 		OrigemId:        &origemId,
 		Origem:          "ABASTECIMENTO",
-		Valor:           dieselAdd.ValorTotal,
-		ValorParcela:    dieselAdd.ValorTotal,
+		Valor:           valorFinanceiro,
+		ValorParcela:    valorFinanceiro,
 		NumeroParcela:   1,
 		TotalParcelas:   1,
 		NumeroDocumento: dieselAdd.NumeroDocumento,
