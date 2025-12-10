@@ -22,8 +22,8 @@ func (r *FuelingRepository) Add(record entities.Fueling) (int64, error) {
 	query :=
 		`INSERT INTO abastecimento
 		(veiculo_id, posto_id, data_abastecimento, tipo_combustivel,
-		litros, valor_unitario, valor_diesel, valor_arla, numero_documento, km, cheio)
-		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);`
+		litros, valor_diesel, valor_arla, numero_documento, km, cheio)
+		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);`
 
 	result, err := r.conn.Exec(query,
 		record.VeiculoId,
@@ -31,7 +31,6 @@ func (r *FuelingRepository) Add(record entities.Fueling) (int64, error) {
 		record.Data,
 		record.TipoCombustivel,
 		record.Litros,
-		record.ValorUnitario,
 		record.ValorDiesel,
 		record.ValorArla,
 		record.NumeroDocumento,
@@ -53,7 +52,7 @@ func (r *FuelingRepository) Add(record entities.Fueling) (int64, error) {
 func (r *FuelingRepository) GetAll() ([]entities.Fueling, error) {
 	query := `SELECT 
 				a.id, a.veiculo_id, a.posto_id, a.data_abastecimento, 
-				a.tipo_combustivel, a.litros, a.valor_unitario, a.valor_diesel, a.valor_arla,
+				a.tipo_combustivel, a.litros, a.valor_diesel, a.valor_arla,
 				a.Km, a.numero_documento, a.cheio, a.created_at, a.updated_at
 			FROM abastecimento a
 			INNER JOIN posto f ON a.posto_id = f.id
@@ -75,8 +74,8 @@ func (r *FuelingRepository) GetAll() ([]entities.Fueling, error) {
 			&record.Data,
 			&record.TipoCombustivel,
 			&record.Litros,
-			&record.ValorUnitario,
 			&record.ValorDiesel,
+			&record.ValorArla,
 			&record.Km,
 			&record.NumeroDocumento,
 			&record.Cheio,
@@ -93,7 +92,7 @@ func (r *FuelingRepository) GetAll() ([]entities.Fueling, error) {
 func (r *FuelingRepository) GetByDateRange(startDate, endDate time.Time) ([]entities.Fueling, error) {
 	query := `SELECT 
         a.id, a.veiculo_id, a.posto_id, a.data_abastecimento, 
-        a.tipo_combustivel, a.litros, a.valor_unitario, a.valor_diesel, a.valor_arla,
+        a.tipo_combustivel, a.litros, a.valor_diesel, a.valor_arla,
         a.Km, a.numero_documento, a.cheio, a.created_at, a.updated_at
     FROM abastecimento a
     INNER JOIN posto f ON a.posto_id = f.id
@@ -117,7 +116,6 @@ func (r *FuelingRepository) GetByDateRange(startDate, endDate time.Time) ([]enti
 			&record.Data,
 			&record.TipoCombustivel,
 			&record.Litros,
-			&record.ValorUnitario,
 			&record.ValorDiesel,
 			&record.ValorArla,
 			&record.Km,
@@ -142,7 +140,6 @@ func (r *FuelingRepository) Update(record entities.Fueling) error {
             tipo_combustivel = ?,
             km = ?,
             litros = ?,
-            valor_unitario = ?,
             valor_diesel = ?,
             valor_arla = ?,
 			numero_documento = ?,
@@ -156,7 +153,6 @@ func (r *FuelingRepository) Update(record entities.Fueling) error {
 		record.TipoCombustivel,
 		record.Km,
 		record.Litros,
-		record.ValorUnitario,
 		record.ValorDiesel,
 		record.ValorArla,
 		record.NumeroDocumento,

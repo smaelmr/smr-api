@@ -196,6 +196,20 @@ func (s *FuelingService) Add(dieselAdd *entities.Fueling) error {
 		return err
 	}
 
+	obsFinanceiro := "Lançamento automático de abastecimento."
+
+	if dieselAdd.ValorDiesel > 0 {
+		obsFinanceiro += fmt.Sprintf("\nCombustível: %s ", fmt.Sprintf("%.2f", dieselAdd.ValorDiesel))
+	}
+
+	if dieselAdd.ValorArla > 0 {
+		obsFinanceiro += fmt.Sprintf("\nArla: %s ", fmt.Sprintf("%.2f", dieselAdd.ValorArla))
+	}
+
+	if dieselAdd.ValorDiversos > 0 {
+		obsFinanceiro += fmt.Sprintf("\nDiversos: %s ", fmt.Sprintf("%.2f", dieselAdd.ValorDiversos))
+	}
+
 	// Cria automaticamente um lançamento a pagar
 	// Soma valorDiversos ao valorTotal para o lançamento financeiro
 	valorFinanceiro := dieselAdd.ValorDiesel + dieselAdd.ValorArla + dieselAdd.ValorDiversos
@@ -212,7 +226,7 @@ func (s *FuelingService) Add(dieselAdd *entities.Fueling) error {
 		NumeroDocumento: dieselAdd.NumeroDocumento,
 		DataCompetencia: dieselAdd.Data,
 		DataVencimento:  dieselAdd.Data,
-		Observacao:      "Lançamento automático de abastecimento",
+		Observacao:      obsFinanceiro,
 	}
 
 	err = s.RepoManager.Finance().Add(finance)
