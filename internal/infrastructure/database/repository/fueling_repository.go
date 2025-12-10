@@ -21,17 +21,17 @@ func newFuelingRepository(conn *sql.DB) *FuelingRepository {
 func (r *FuelingRepository) Add(record entities.Fueling) (int64, error) {
 	query :=
 		`INSERT INTO abastecimento
-		(veiculo_id, posto_id, data_abastecimento, tipo_combustivel,
-		litros, valor_diesel, valor_arla, numero_documento, km, cheio)
-		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);`
+		(veiculo_id, posto_id, data_abastecimento,
+		litros, valor_unitario, valor_diesel, qtd_arla, valor_arla, numero_documento, km, cheio)
+		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);`
 
 	result, err := r.conn.Exec(query,
 		record.VeiculoId,
 		record.PostoId,
 		record.Data,
-		record.TipoCombustivel,
 		record.Litros,
 		record.ValorDiesel,
+		record.QtdArla,
 		record.ValorArla,
 		record.NumeroDocumento,
 		record.Km,
@@ -52,7 +52,7 @@ func (r *FuelingRepository) Add(record entities.Fueling) (int64, error) {
 func (r *FuelingRepository) GetAll() ([]entities.Fueling, error) {
 	query := `SELECT 
 				a.id, a.veiculo_id, a.posto_id, a.data_abastecimento, 
-				a.tipo_combustivel, a.litros, a.valor_diesel, a.valor_arla,
+				a.litros, a.valor_unitario, a.valor_diesel, a.qtd_arla, a.valor_arla,
 				a.Km, a.numero_documento, a.cheio, a.created_at, a.updated_at
 			FROM abastecimento a
 			INNER JOIN posto f ON a.posto_id = f.id
@@ -72,9 +72,9 @@ func (r *FuelingRepository) GetAll() ([]entities.Fueling, error) {
 			&record.VeiculoId,
 			&record.PostoId,
 			&record.Data,
-			&record.TipoCombustivel,
 			&record.Litros,
 			&record.ValorDiesel,
+			&record.QtdArla,
 			&record.ValorArla,
 			&record.Km,
 			&record.NumeroDocumento,
@@ -92,7 +92,7 @@ func (r *FuelingRepository) GetAll() ([]entities.Fueling, error) {
 func (r *FuelingRepository) GetByDateRange(startDate, endDate time.Time) ([]entities.Fueling, error) {
 	query := `SELECT 
         a.id, a.veiculo_id, a.posto_id, a.data_abastecimento, 
-        a.tipo_combustivel, a.litros, a.valor_diesel, a.valor_arla,
+        a.litros, a.valor_unitario, a.valor_diesel, a.qtd_arla, a.valor_arla,
         a.Km, a.numero_documento, a.cheio, a.created_at, a.updated_at
     FROM abastecimento a
     INNER JOIN posto f ON a.posto_id = f.id
@@ -114,9 +114,9 @@ func (r *FuelingRepository) GetByDateRange(startDate, endDate time.Time) ([]enti
 			&record.VeiculoId,
 			&record.PostoId,
 			&record.Data,
-			&record.TipoCombustivel,
 			&record.Litros,
 			&record.ValorDiesel,
+			&record.QtdArla,
 			&record.ValorArla,
 			&record.Km,
 			&record.NumeroDocumento,
@@ -137,10 +137,10 @@ func (r *FuelingRepository) Update(record entities.Fueling) error {
             veiculo_id = ?,
             posto_id = ?,
             data_abastecimento = ?,
-            tipo_combustivel = ?,
             km = ?,
             litros = ?,
             valor_diesel = ?,
+            qtd_arla = ?,
             valor_arla = ?,
 			numero_documento = ?,
 			cheio = ?
@@ -150,10 +150,10 @@ func (r *FuelingRepository) Update(record entities.Fueling) error {
 		record.VeiculoId,
 		record.PostoId,
 		record.Data,
-		record.TipoCombustivel,
 		record.Km,
 		record.Litros,
 		record.ValorDiesel,
+		record.QtdArla,
 		record.ValorArla,
 		record.NumeroDocumento,
 		record.Cheio,
@@ -204,7 +204,6 @@ func (r *FuelingRepository) GetFuelConsumption(startDate, endDate time.Time) ([]
 				MAX(CASE WHEN cheio = true THEN km END) as km_final_cheio
 			FROM abastecimento
 			WHERE data_abastecimento BETWEEN ? AND ?
-				AND tipo_combustivel IN ('Diesel_S10', 'Diesel_S500')
 				AND cheio = true
 			GROUP BY veiculo_id
 		)
@@ -221,7 +220,6 @@ func (r *FuelingRepository) GetFuelConsumption(startDate, endDate time.Time) ([]
 		LEFT JOIN consumo_cheio cc ON cc.veiculo_id = a.veiculo_id
 		WHERE 
 			a.data_abastecimento BETWEEN ? AND ?
-			AND a.tipo_combustivel IN ('Diesel_S10', 'Diesel_S500')
 		GROUP BY a.veiculo_id, v.placa, cc.km_inicial_cheio, cc.km_final_cheio
 		HAVING COUNT(*) > 1
 		ORDER BY v.placa`

@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"mime/multipart"
 	"net/http"
-	"strings"
 	"time"
 
 	"github.com/smaelmr/finance-api/internal/domain/contract/repository"
@@ -105,12 +104,10 @@ func (c *FuelingService) ImportLinxDelPozo(file multipart.File, handler *multipa
 			continue
 		}
 
-		if (fueling.TipoCombustivel == "Diesel_S10" || fueling.TipoCombustivel == "Diesel_S500" || fueling.TipoCombustivel == "Arla") == false {
-			err = c.Add(&fueling)
-			if err != nil {
-				errors = append(errors, fmt.Sprintf("Erro ao salvar registro: %s", err.Error()))
-				continue
-			}
+		err = c.Add(&fueling)
+		if err != nil {
+			errors = append(errors, fmt.Sprintf("Erro ao salvar registro: %s", err.Error()))
+			continue
 		}
 	}
 
@@ -152,16 +149,6 @@ func (c *FuelingService) convertToFueling(record dto.FuelingImport, fileName str
 		PostoId:         posto.Id,
 		VeiculoId:       veiculo.Id,
 		Km:              record.HodometroInt64(),
-	}
-
-	// Mapeia o tipo de combustível baseado no nome do arquivo
-	fileNameLower := strings.ToLower(fileName)
-	if strings.Contains(fileNameLower, "russi") {
-		fuel.TipoCombustivel = record.ProdutoMappedRussi()
-	} else if strings.Contains(fileNameLower, "graal") {
-		fuel.TipoCombustivel = record.ProdutoMappedGraal()
-	} else {
-		return entities.Fueling{}, fmt.Errorf("formato de arquivo não reconhecido: %s. Use arquivos com 'Russi' ou 'Graal' no nome", fileName)
 	}
 
 	return fuel, nil
