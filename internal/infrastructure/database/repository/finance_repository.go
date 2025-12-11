@@ -145,7 +145,7 @@ func (r *FinanceRepository) Get(id int64) (*entities.Finance, error) {
 
 func (r *FinanceRepository) GetAll(categoryType string, month int, year int) ([]entities.Finance, error) {
 	query := `SELECT 
-		f.id, f.pessoa_id, f.valor_original, f.numero_documento, f.data_competencia, 
+		f.id, f.pessoa_id, f.valor_original, f.valor_pago, f.numero_documento, f.data_competencia, 
 		f.data_vencimento, f.data_realizacao, f.origem, f.origem_id, f.observacao, 
 		categoria_id, forma_pagamento_id, f.numero_parcela, 
 		f.created_at, f.updated_at
@@ -172,6 +172,7 @@ func (r *FinanceRepository) GetAll(categoryType string, month int, year int) ([]
 			&record.Id,
 			&record.PessoaId,
 			&record.ValorParcela,
+			&record.ValorPago,
 			&record.NumeroDocumento,
 			&record.DataCompetencia,
 			&record.DataVencimento,
